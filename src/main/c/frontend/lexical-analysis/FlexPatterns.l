@@ -14,27 +14,26 @@
  * @see https://westes.github.io/flex/manual/Definitions-Section.html#Definitions-Section
  */
 
-extern CompilationStatus ArithmeticOperatorLexemeAction(TokenLabel label);
-extern CompilationStatus EnterImportExpressionLexemeAction(FlexContext context);
-extern CompilationStatus EnterMultilineCommentLexemeAction(FlexContext context);
-extern CompilationStatus EOFLexemeAction();
+extern CompilationStatus ApiLexemeAction();
+extern CompilationStatus AppLexemeAction();
+extern CompilationStatus CacheLexemeAction();
+extern CompilationStatus CloseBraceLexemeAction();
+extern CompilationStatus ConnectsToLexemeAction();
+extern CompilationStatus DatabaseLexemeAction();
+extern CompilationStatus EndLexemeAction();
+extern CompilationStatus ExposeLexemeAction();
+extern CompilationStatus FrontendLexemeAction();
+extern CompilationStatus IdentifierLexemeAction();
 extern CompilationStatus IgnoredLexemeAction();
 extern CompilationStatus IntegerLexemeAction();
-extern CompilationStatus LeaveImportExpressionLexemeAction();
-extern CompilationStatus LeaveMultilineCommentLexemeAction();
-extern CompilationStatus ParenthesisLexemeAction(TokenLabel label);
-extern CompilationStatus SubexpressionLexemeAction();
+extern CompilationStatus OnLexemeAction();
+extern CompilationStatus OpenBraceLexemeAction();
+extern CompilationStatus SemicolonLexemeAction();
+extern CompilationStatus StringLexemeAction();
 extern CompilationStatus UnknownLexemeAction();
+extern CompilationStatus UsingLexemeAction();
 
 %}
-
-/**
- * Flex contexts (a.k.a. start conditions).
- *
- * @see https://westes.github.io/flex/manual/Start-Conditions.html
- */
-%x IMPORT_EXPRESSION
-%x MULTILINE_COMMENT
 
 /**
  * Reusable patterns.
@@ -43,6 +42,10 @@ extern CompilationStatus UnknownLexemeAction();
  * @see https://westes.github.io/flex/manual/Patterns.html
  */
 whitespace			[[:space:]]+
+identifier			[A-Za-z_][A-Za-z0-9_]*
+integer				[0-9]+
+string				\"[^\"\n]*\"
+lineComment			"//"[^\n]*
 
 %%
 
@@ -54,30 +57,30 @@ whitespace			[[:space:]]+
 
 %}
 
-"{"									{ return EnterImportExpressionLexemeAction(IMPORT_EXPRESSION); }
-<IMPORT_EXPRESSION>[^{}]+			{ return SubexpressionLexemeAction(); }
-<IMPORT_EXPRESSION>"}"				{ return LeaveImportExpressionLexemeAction(); }
-<IMPORT_EXPRESSION>.				{ return UnknownLexemeAction(); }
+"app"								{ return AppLexemeAction(); }
+"frontend"							{ return FrontendLexemeAction(); }
+"api"								{ return ApiLexemeAction(); }
+"database"							{ return DatabaseLexemeAction(); }
+"cache"								{ return CacheLexemeAction(); }
+"using"								{ return UsingLexemeAction(); }
+"expose"							{ return ExposeLexemeAction(); }
+"on"								{ return OnLexemeAction(); }
+"connects_to"						{ return ConnectsToLexemeAction(); }
 
-"/*"								{ return EnterMultilineCommentLexemeAction(MULTILINE_COMMENT); }
-<MULTILINE_COMMENT>"*/"				{ return LeaveMultilineCommentLexemeAction(); }
-<MULTILINE_COMMENT>[^*]+			{ return IgnoredLexemeAction(); }
-<MULTILINE_COMMENT>.				{ return IgnoredLexemeAction(); }
+"{"									{ return OpenBraceLexemeAction(); }
+"}"									{ return CloseBraceLexemeAction(); }
+";"									{ return SemicolonLexemeAction(); }
 
-"-"									{ return ArithmeticOperatorLexemeAction(SUB); }
-"*"									{ return ArithmeticOperatorLexemeAction(MUL); }
-"/"									{ return ArithmeticOperatorLexemeAction(DIV); }
-"+"									{ return ArithmeticOperatorLexemeAction(ADD); }
+{string}							{ return StringLexemeAction(); }
+{integer}							{ return IntegerLexemeAction(); }
+{identifier}						{ return IdentifierLexemeAction(); }
 
-"("									{ return ParenthesisLexemeAction(OPEN_PARENTHESIS); }
-")"									{ return ParenthesisLexemeAction(CLOSE_PARENTHESIS); }
-
-[[:digit:]]+						{ return IntegerLexemeAction(); }
-
+{lineComment}						{ return IgnoredLexemeAction(); }
 {whitespace}						{ return IgnoredLexemeAction(); }
-.									{ return UnknownLexemeAction(); }
 
-<<EOF>>								{ return EOFLexemeAction(); }
+<<EOF>>								{ return EndLexemeAction(); }
+
+.									{ return UnknownLexemeAction(); }
 
 %%
 

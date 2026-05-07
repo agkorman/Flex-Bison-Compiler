@@ -3,7 +3,6 @@
 /* MODULE INTERNAL STATE */
 
 static bool _logIgnoredLexemes = true;
-static InputBuffer * _inputBuffer = NULL;
 static LexicalAnalyzer * _lexicalAnalyzer = NULL;
 static Logger * _logger = NULL;
 
@@ -14,15 +13,10 @@ void _shutdownFlexActionsModule() {
 		destroyLogger(_logger);
 		_logger = NULL;
 	}
-	if (_inputBuffer != NULL) {
-		destroyInputBuffer(_inputBuffer);
-		_inputBuffer = NULL;
-	}
 	_lexicalAnalyzer = NULL;
 }
 
 ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer) {
-	_inputBuffer = NULL;
 	_lexicalAnalyzer = lexicalAnalyzer;
 	_logger = createLogger("FlexActions");
 	_logIgnoredLexemes = getBooleanOrDefault("LOG_IGNORED_LEXEMES", _logIgnoredLexemes);
@@ -32,6 +26,8 @@ ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer) 
 /* PRIVATE FUNCTIONS */
 
 static void _logTokenAction(const char * actionName, Token * token);
+static char * _copyLexeme(const Token * token);
+static char * _copyStringContent(const Token * token);
 
 /**
  * Logs a lexical-analyzer action over a token in DEBUGGING level.
@@ -50,48 +46,104 @@ static void _logTokenAction(const char * actionName, Token * token) {
 	_lexeme = NULL;
 }
 
+/**
+ * Creates a heap-owned copy of a token lexeme.
+ */
+static char * _copyLexeme(const Token * token) {
+	char * copy = calloc(1 + token->length, sizeof(char));
+	strncpy(copy, token->lexeme, token->length);
+	return copy;
+}
+
+/**
+ * Creates a heap-owned copy of a string token without its quotes.
+ */
+static char * _copyStringContent(const Token * token) {
+	const unsigned int contentLength = token->length - 2;
+	char * copy = calloc(1 + contentLength, sizeof(char));
+	strncpy(copy, token->lexeme + 1, contentLength);
+	return copy;
+}
+
 /* PUBLIC FUNCTIONS */
 
-CompilationStatus ArithmeticOperatorLexemeAction(TokenLabel label) {
-	Token * token = createToken(_lexicalAnalyzer, label);
+CompilationStatus ApiLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, API);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return status;
 }
 
-CompilationStatus EnterImportExpressionLexemeAction(FlexContext context) {
-	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, OPEN_BRACE);
-		_logTokenAction(__FUNCTION__, token);
-		destroyToken(token);
-	}
-	enterLexicalAnalyzerContext(_lexicalAnalyzer, context);
-	return IN_PROGRESS;
-}
-
-CompilationStatus EnterMultilineCommentLexemeAction(FlexContext context) {
-	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, OPEN_COMMENT);
-		_logTokenAction(__FUNCTION__, token);
-		destroyToken(token);
-	}
-	enterLexicalAnalyzerContext(_lexicalAnalyzer, context);
-	return IN_PROGRESS;
-}
-
-CompilationStatus EOFLexemeAction() {
-	CompilationStatus status = IN_PROGRESS;
-	Token * token = createToken(_lexicalAnalyzer, 0);
+CompilationStatus AppLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, APP);
 	_logTokenAction(__FUNCTION__, token);
-	if (!popInputBuffer(_lexicalAnalyzer)) {
-		status = pushToken(_lexicalAnalyzer, token);
-		FlexContext context = currentLexicalAnalyzerContext(_lexicalAnalyzer);
-		if (0 < context) {
-			logError(_logger, "The final context is not closed (context=%d).", context);
-			status = FAILED;
-		}
-	}
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus CacheLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, CACHE);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus CloseBraceLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, CLOSE_BRACE);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus ConnectsToLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, CONNECTS_TO);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus DatabaseLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, DATABASE);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus EndLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, END);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus ExposeLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, EXPOSE);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus FrontendLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, FRONTEND);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus IdentifierLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, ID);
+	token->semanticValue->string = _copyLexeme(token);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return status;
 }
@@ -114,48 +166,51 @@ CompilationStatus IntegerLexemeAction() {
 	return status;
 }
 
-CompilationStatus LeaveImportExpressionLexemeAction() {
-	pushInputBuffer(_inputBuffer);
-	leaveLexicalAnalyzerContext(_lexicalAnalyzer);
-	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, CLOSE_BRACE);
-		_logTokenAction(__FUNCTION__, token);
-		destroyToken(token);
-	}
-	return IN_PROGRESS;
-}
-
-CompilationStatus LeaveMultilineCommentLexemeAction() {
-	leaveLexicalAnalyzerContext(_lexicalAnalyzer);
-	if (_logIgnoredLexemes) {
-		Token * token = createToken(_lexicalAnalyzer, CLOSE_COMMENT);
-		_logTokenAction(__FUNCTION__, token);
-		destroyToken(token);
-	}
-	return IN_PROGRESS;
-}
-
-CompilationStatus ParenthesisLexemeAction(TokenLabel label) {
-	Token * token = createToken(_lexicalAnalyzer, label);
+CompilationStatus OnLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, ON);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return status;
 }
 
-CompilationStatus SubexpressionLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, IGNORED);
-	_inputBuffer = createInputBuffer(_lexicalAnalyzer, token->lexeme);
-	if (_logIgnoredLexemes) {
-		_logTokenAction(__FUNCTION__, token);
-	}
+CompilationStatus OpenBraceLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, OPEN_BRACE);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
-	return IN_PROGRESS;
+	return status;
+}
+
+CompilationStatus SemicolonLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, SEMICOLON);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus StringLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, STRING);
+	token->semanticValue->string = _copyStringContent(token);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
 }
 
 CompilationStatus UnknownLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, UNKNOWN);
 	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
-	return FAILED;
+	return status;
+}
+
+CompilationStatus UsingLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, USING);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
 }

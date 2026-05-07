@@ -3,6 +3,7 @@
 #include "../../support/type/TokenLabel.h"
 #include "AbstractSyntaxTree.h"
 #include "BisonActions.h"
+#include <stdlib.h>
 
 /**
  * The error reporting function for Bison parser.
@@ -27,13 +28,11 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 	/** Terminals. */
 
 	signed int integer;
+	char * string;
 	TokenLabel token;
 
 	/** Non-terminals. */
 
-	Constant * constant;
-	Expression * expression;
-	Factor * factor;
 	Program * program;
 }
 
@@ -45,60 +44,40 @@ void yyerror(const YYLTYPE * location, const char * message) {}
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
-%destructor { destroyConstant($$); } <constant>
-%destructor { destroyExpression($$); } <expression>
-%destructor { destroyFactor($$); } <factor>
+%destructor { free($$); } <string>
 
 /** Terminals. */
+%token <token> APP
+%token <token> FRONTEND
+%token <token> API
+%token <token> DATABASE
+%token <token> CACHE
+%token <token> USING
+%token <token> EXPOSE
+%token <token> ON
+%token <token> CONNECTS_TO
+
+%token <string> ID
+%token <string> STRING
 %token <integer> INTEGER
-%token <token> ADD
-%token <token> CLOSE_BRACE
-%token <token> CLOSE_COMMENT
-%token <token> CLOSE_PARENTHESIS
-%token <token> DIV
-%token <token> MUL
+
 %token <token> OPEN_BRACE
-%token <token> OPEN_COMMENT
-%token <token> OPEN_PARENTHESIS
-%token <token> SUB
+%token <token> CLOSE_BRACE
+%token <token> SEMICOLON
+
+%token END 0 "end of file"
 
 %token <token> IGNORED
 %token <token> UNKNOWN
 
 /** Non-terminals. */
-%type <constant> constant
-%type <expression> expression
-%type <factor> factor
 %type <program> program
-
-/**
- * Precedence and associativity.
- *
- * @see https://en.cppreference.com/w/cpp/language/operator_precedence.html
- * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
- */
-%left ADD SUB
-%left MUL DIV
 
 %%
 
 // IMPORTANT: To use λ in the following grammar, use the %empty symbol.
 
-program: expression											{ $$ = ExpressionProgramSemanticAction($1); }
-	;
-
-expression: expression[left] ADD expression[right]			{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
-	| expression[left] DIV expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, DIVISION); }
-	| expression[left] MUL expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, MULTIPLICATION); }
-	| expression[left] SUB expression[right]				{ $$ = ArithmeticExpressionSemanticAction($left, $right, SUBTRACTION); }
-	| factor												{ $$ = FactorExpressionSemanticAction($1); }
-	;
-
-factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS		{ $$ = ExpressionFactorSemanticAction($2); }
-	| constant												{ $$ = ConstantFactorSemanticAction($1); }
-	;
-
-constant: INTEGER											{ $$ = IntegerConstantSemanticAction($1); }
+program: %empty												{ $$ = EmptyProgramSemanticAction(); }
 	;
 
 %%
