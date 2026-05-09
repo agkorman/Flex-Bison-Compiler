@@ -202,9 +202,8 @@ CompilationStatus StringLexemeAction() {
 CompilationStatus UnknownLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, UNKNOWN);
 	_logTokenAction(__FUNCTION__, token);
-	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
-	return status;
+	return FAILED;
 }
 
 CompilationStatus UsingLexemeAction() {

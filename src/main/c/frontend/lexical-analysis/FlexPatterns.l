@@ -78,9 +78,9 @@ lineComment			"//"[^\n]*
 {lineComment}						{ return IgnoredLexemeAction(); }
 {whitespace}						{ return IgnoredLexemeAction(); }
 
-<<EOF>>								{ return EndLexemeAction(); }
-
 .									{ return UnknownLexemeAction(); }
+
+<<EOF>>								{ return EndLexemeAction(); }
 
 %%
 

@@ -1,0 +1,4 @@
+app MyApp {
+    api backend using "node:18";
+    expose backend on "3000";
+}

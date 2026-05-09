@@ -1,0 +1,3 @@
+app WebApp {
+    frontend ui using "nginx:latest";
+}
