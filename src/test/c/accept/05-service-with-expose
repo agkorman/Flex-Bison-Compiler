@@ -1,0 +1,4 @@
+app ExposedApp {
+    api server using "node:20";
+    expose server on 3000;
+}

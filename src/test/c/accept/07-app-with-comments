@@ -1,0 +1,9 @@
+// A valid app that uses line comments throughout
+app CommentedApp {
+    // A frontend service
+    frontend ui using "nginx:stable";
+    // An API service
+    api server using "node:20";
+    // Expose the frontend publicly
+    expose ui on 80;
+}

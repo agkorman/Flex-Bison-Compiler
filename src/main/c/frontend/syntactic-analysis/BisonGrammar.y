@@ -3,15 +3,9 @@
 #include "../../support/type/TokenLabel.h"
 #include "AbstractSyntaxTree.h"
 #include "BisonActions.h"
-#include <stdlib.h>
 
 /**
- * The error reporting function for Bison parser.
- *
- * @todo Add location to the grammar and "pushToken" API function.
- *
  * @see https://www.gnu.org/software/bison/manual/html_node/Error-Reporting-Function.html
- * @see https://www.gnu.org/software/bison/manual/html_node/Tracking-Locations.html
  */
 void yyerror(const YYLTYPE * location, const char * message) {}
 
@@ -33,6 +27,9 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 
 	/** Non-terminals. */
 
+	RoleType role;
+	App * app;
+	Declaration * declaration;
 	Program * program;
 }
 
@@ -45,6 +42,8 @@ void yyerror(const YYLTYPE * location, const char * message) {}
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
 %destructor { free($$); } <string>
+%destructor { destroyDeclaration($$); } <declaration>
+%destructor { destroyApp($$); } <app>
 
 /** Terminals. */
 %token <token> APP
@@ -71,13 +70,35 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 %token <token> UNKNOWN
 
 /** Non-terminals. */
+%type <role> role
+%type <app> app
+%type <declaration> declaration
+%type <declaration> declarations
 %type <program> program
 
 %%
 
 // IMPORTANT: To use λ in the following grammar, use the %empty symbol.
 
-program: %empty												{ $$ = EmptyProgramSemanticAction(); }
+program: app												{ $$ = AppProgramSemanticAction($1); }
+	;
+
+app: APP ID OPEN_BRACE declarations CLOSE_BRACE			{ $$ = AppSemanticAction($2, $4); }
+	;
+
+declarations: declarations declaration					{ $$ = AppendDeclarationSemanticAction($1, $2); }
+	| declaration										{ $$ = SingleDeclarationSemanticAction($1); }
+	;
+
+declaration: role ID USING STRING SEMICOLON				{ $$ = ServiceDeclarationSemanticAction($1, $2, $4); }
+	| EXPOSE ID ON INTEGER SEMICOLON					{ $$ = ExposeDeclarationSemanticAction($2, $4); }
+	| ID CONNECTS_TO ID SEMICOLON						{ $$ = ConnectDeclarationSemanticAction($1, $3); }
+	;
+
+role: FRONTEND											{ $$ = FRONTEND_ROLE; }
+	| API												{ $$ = API_ROLE; }
+	| DATABASE											{ $$ = DATABASE_ROLE; }
+	| CACHE												{ $$ = CACHE_ROLE; }
 	;
 
 %%

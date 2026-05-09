@@ -1,0 +1,3 @@
+app DataApp {
+    database store using "postgres:16";
+}

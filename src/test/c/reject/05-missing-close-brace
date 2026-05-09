@@ -1,0 +1,2 @@
+app MyApp {
+    api backend using "node:18";

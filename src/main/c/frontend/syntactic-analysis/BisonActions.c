@@ -21,25 +21,80 @@ ModuleDestructor initializeBisonActionsModule(CompilerState * compilerState) {
 	return _shutdownBisonActionsModule;
 }
 
-/* IMPORTED FUNCTIONS */
-
 /* PRIVATE FUNCTIONS */
 
 static void _logSyntacticAnalyzerAction(const char * functionName);
 
-/**
- * Logs a syntactic-analyzer action in DEBUGGING level.
- */
 static void _logSyntacticAnalyzerAction(const char * functionName) {
 	logDebugging(_logger, "%s", functionName);
 }
 
 /* PUBLIC FUNCTIONS */
 
-Program * EmptyProgramSemanticAction() {
+Program * AppProgramSemanticAction(App * app) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->empty = true;
+	program->app = app;
 	_compilerState->abstractSyntaxtTree = program;
 	return program;
+}
+
+App * AppSemanticAction(char * name, Declaration * declarations) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	App * app = calloc(1, sizeof(App));
+	app->name = name;
+	app->declarations = declarations;
+	return app;
+}
+
+Declaration * SingleDeclarationSemanticAction(Declaration * declaration) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	return declaration;
+}
+
+Declaration * AppendDeclarationSemanticAction(Declaration * list, Declaration * declaration) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Declaration * current = list;
+	while (current->next != NULL) {
+		current = current->next;
+	}
+	current->next = declaration;
+	return list;
+}
+
+Declaration * ServiceDeclarationSemanticAction(RoleType role, char * name, char * image) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Declaration * declaration = calloc(1, sizeof(Declaration));
+	ServiceDeclaration * service = calloc(1, sizeof(ServiceDeclaration));
+	service->role = role;
+	service->name = name;
+	service->image = image;
+	declaration->service = service;
+	declaration->type = SERVICE_DECLARATION;
+	declaration->next = NULL;
+	return declaration;
+}
+
+Declaration * ExposeDeclarationSemanticAction(char * serviceName, int port) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Declaration * declaration = calloc(1, sizeof(Declaration));
+	ExposeDeclaration * expose = calloc(1, sizeof(ExposeDeclaration));
+	expose->serviceName = serviceName;
+	expose->port = port;
+	declaration->expose = expose;
+	declaration->type = EXPOSE_DECLARATION;
+	declaration->next = NULL;
+	return declaration;
+}
+
+Declaration * ConnectDeclarationSemanticAction(char * from, char * to) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Declaration * declaration = calloc(1, sizeof(Declaration));
+	ConnectDeclaration * connect = calloc(1, sizeof(ConnectDeclaration));
+	connect->from = from;
+	connect->to = to;
+	declaration->connect = connect;
+	declaration->type = CONNECT_DECLARATION;
+	declaration->next = NULL;
+	return declaration;
 }
