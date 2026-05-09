@@ -1,0 +1,8 @@
+app ThreeTier {
+    frontend web using "nginx:latest";
+    api backend using "node:20";
+    database db using "postgres:16";
+    expose web on 8080;
+    web connects_to backend;
+    backend connects_to db;
+}

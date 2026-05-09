@@ -1,0 +1,5 @@
+// implementacion de backend necesaria
+app MyApp {
+    database db using "postgres:16";
+    expose db on 5432;
+}
