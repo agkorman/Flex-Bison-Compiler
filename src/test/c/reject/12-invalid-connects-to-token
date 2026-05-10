@@ -1,5 +1,5 @@
 app MyApp {
     api backend using "node:20";
     database db using "postgres:16";
-    backend connects-to db;
+    backend connectsTo db;
 }
