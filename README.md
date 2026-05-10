@@ -58,11 +58,19 @@ where `<program>` is the path to the file that represents its entry-point.
 
 ### Test
 
-Executes every available unit-test under `src/test/c` folder:
+Executes the Stage II frontend unit tests under `src/test/c/accept` and
+`src/test/c/reject`:
 
 ```bash
 src/main/bash/test.sh
 ```
+
+The fixtures under `src/test/c/reject-stage3` document semantic rejection cases
+that require the Stage III backend/semantic-analysis phase, such as duplicate
+service names, missing service references, invalid exposed ports, or exposing
+internal services. They are intentionally not executed by the Stage II test
+script because the current deliverable only validates lexical and syntactic
+analysis and AST construction.
 
 ### Stop
 
