@@ -1,0 +1,5 @@
+// required backend implementation
+app MyApp {
+    api backend using "node:20";
+    backend connects_to db;
+}

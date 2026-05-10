@@ -1,0 +1,5 @@
+// backend implementation required
+app MyApp {
+    api backend using "node:20";
+    expose missing on 8080;
+}

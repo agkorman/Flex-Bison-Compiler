@@ -1,0 +1,6 @@
+app MiAplicacion {
+    api backend using "node:20";
+    database db using "postgres:16";
+    expose backend on 3000;
+    backend connects_to db;
+}

@@ -1,10 +1,10 @@
-[![✗](https://img.shields.io/badge/Release-v2.0.0-ffb600.svg?style=for-the-badge)](https://github.com/agkorman/Flex-Bison-Compiler/releases)
+[![StackForge](https://img.shields.io/badge/StackForge-Stage%20II-ffb600.svg?style=for-the-badge)](#stackforge)
 
-[![✗](https://github.com/agkorman/Flex-Bison-Compiler/actions/workflows/pipeline.yaml/badge.svg?branch=production)](https://github.com/agkorman/Flex-Bison-Compiler/actions/workflows/pipeline.yaml)
+[![Authors](https://img.shields.io/badge/Authors-A.Korman%20J.Nolasco%20N.Novotny-blue.svg?style=for-the-badge)](LICENSE.md)
 
-# Flex-Bison-Compiler
+# StackForge
 
-A base compiler example, developed with Flex and Bison.
+A StackForge compiler developed in C with Flex and Bison by A.Korman, J.Nolasco, and N.Novotny.
 
 * [Requirements](#requirements)
 * [Configuration](#configuration)

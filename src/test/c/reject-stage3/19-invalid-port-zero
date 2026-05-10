@@ -1,0 +1,5 @@
+// necessary backend implementation
+app MyApp {
+    api backend using "node:20";
+    expose backend on 0;
+}
