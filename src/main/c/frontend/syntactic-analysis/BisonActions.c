@@ -39,12 +39,56 @@ Program * AppProgramSemanticAction(App * app) {
 	return program;
 }
 
-App * AppSemanticAction(char * name, Declaration * declarations) {
+App * AppSemanticAction(char * name, AppItem * items) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	App * app = calloc(1, sizeof(App));
 	app->name = name;
-	app->declarations = declarations;
+	app->items = items;
 	return app;
+}
+
+AppItem * SingleAppItemSemanticAction(AppItem * item) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	return item;
+}
+
+AppItem * AppendAppItemSemanticAction(AppItem * list, AppItem * item) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	AppItem * current = list;
+	while (current->next != NULL) {
+		current = current->next;
+	}
+	current->next = item;
+	return list;
+}
+
+AppItem * NetworkAppItemSemanticAction(Network * network) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	AppItem * item = calloc(1, sizeof(AppItem));
+	item->network = network;
+	item->type = NETWORK_ITEM;
+	item->next = NULL;
+	return item;
+}
+
+AppItem * NetworkConnectAppItemSemanticAction(char * from, char * to) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	AppItem * item = calloc(1, sizeof(AppItem));
+	ConnectDeclaration * connect = calloc(1, sizeof(ConnectDeclaration));
+	connect->from = from;
+	connect->to = to;
+	item->connect = connect;
+	item->type = NETWORK_CONNECT_ITEM;
+	item->next = NULL;
+	return item;
+}
+
+Network * NetworkSemanticAction(char * name, Declaration * declarations) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Network * network = calloc(1, sizeof(Network));
+	network->name = name;
+	network->declarations = declarations;
+	return network;
 }
 
 Declaration * SingleDeclarationSemanticAction(Declaration * declaration) {
@@ -95,6 +139,31 @@ Declaration * ConnectDeclarationSemanticAction(char * from, char * to) {
 	connect->to = to;
 	declaration->connect = connect;
 	declaration->type = CONNECT_DECLARATION;
+	declaration->next = NULL;
+	return declaration;
+}
+
+Declaration * VolumeDeclarationSemanticAction(char * name) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Declaration * declaration = calloc(1, sizeof(Declaration));
+	VolumeDeclaration * volume = calloc(1, sizeof(VolumeDeclaration));
+	volume->name = name;
+	declaration->volume = volume;
+	declaration->type = VOLUME_DECLARATION;
+	declaration->next = NULL;
+	return declaration;
+}
+
+Declaration * MountDeclarationSemanticAction(MountSourceType sourceType, char * source, char * serviceName, char * containerPath) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Declaration * declaration = calloc(1, sizeof(Declaration));
+	MountDeclaration * mount = calloc(1, sizeof(MountDeclaration));
+	mount->sourceType = sourceType;
+	mount->source = source;
+	mount->serviceName = serviceName;
+	mount->containerPath = containerPath;
+	declaration->mount = mount;
+	declaration->type = MOUNT_DECLARATION;
 	declaration->next = NULL;
 	return declaration;
 }

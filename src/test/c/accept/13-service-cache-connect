@@ -1,4 +1,7 @@
 app MyApp {
     network main {
         service backend using "node:18";
+        cache store using "redis:7";
+        backend -> store;
     }
+}

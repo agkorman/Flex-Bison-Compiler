@@ -1,9 +1,12 @@
 // A valid app that uses line comments throughout
 app CommentedApp {
-    // A frontend service
-    frontend ui using "nginx:stable";
-    // An API service
-    api server using "node:20";
-    // Expose the frontend publicly
-    expose ui on 80;
+    // The only network of this app
+    network main {
+        // A reverse-proxy service
+        proxy ui using "nginx:stable";
+        // A generic application service
+        service server using "node:20";
+        // Expose the proxy publicly
+        expose ui on 80;
+    }
 }

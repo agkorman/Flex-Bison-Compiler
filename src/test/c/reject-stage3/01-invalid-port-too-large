@@ -1,6 +1,7 @@
+// backend implementation required
 app MyApp {
     network main {
         proxy web using "nginx:latest";
-        expose web on 8080;
+        expose web on 65536;
     }
 }

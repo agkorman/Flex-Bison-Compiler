@@ -1,0 +1,7 @@
+app MyApp {
+    network main {
+        database db using "postgres:16";
+        volume pgdata;
+        mount pgdata on db at "/var/lib/postgresql/data";
+    }
+}

@@ -1,4 +1,6 @@
 app MyApp {
-    api backend using "node:18";
-    expose backend on "3000";
+    network main {
+        proxy web using "nginx:latest";
+        expose web on "8080";
+    }
 }

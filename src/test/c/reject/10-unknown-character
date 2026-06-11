@@ -1,4 +1,5 @@
 app MyApp {
-    api backend using "node:18";
-    @invalid;
+    network main {
+        service backend using "node:18"; @
+    }
 }

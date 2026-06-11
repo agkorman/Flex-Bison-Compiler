@@ -1,11 +1,13 @@
-app MiAplicacion {
-    frontend web using "nginx:latest";
-    api backend using "node:20";
-    database db using "postgres:16";
-    cache redis using "redis:latest";
-    expose web on 8080;
-    expose backend on 3000;
-    web connects_to backend;
-    backend connects_to db;
-    backend connects_to redis;
+app FullStack {
+    network main {
+        proxy web using "nginx:latest";
+        service backend using "node:20";
+        database db using "postgres:16";
+        cache store using "redis:7";
+        expose web on 8080;
+        expose backend on 3000;
+        web -> backend;
+        backend -> db;
+        backend -> store;
+    }
 }

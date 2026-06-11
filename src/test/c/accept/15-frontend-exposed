@@ -1,4 +1,0 @@
-app MiAplicacion {
-    frontend web using "nginx:latest";
-    expose web on 8080;
-}

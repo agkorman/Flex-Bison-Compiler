@@ -1,0 +1,7 @@
+// backend implementation required
+app MyApp {
+    network main {
+        volume data;
+        mount data on backend at "/app";
+    }
+}

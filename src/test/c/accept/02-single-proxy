@@ -1,0 +1,5 @@
+app MyApp {
+    network main {
+        proxy gateway using "nginx:latest";
+    }
+}

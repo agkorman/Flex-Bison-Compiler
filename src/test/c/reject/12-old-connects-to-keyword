@@ -1,0 +1,8 @@
+// connects_to was replaced by the -> operator
+app MyApp {
+    network main {
+        service backend using "node:18";
+        database db using "postgres:16";
+        backend connects_to db;
+    }
+}

@@ -1,0 +1,7 @@
+// backend implementation required
+app MyApp {
+    network main {
+        database db using "postgres:16";
+        expose db on 5432;
+    }
+}

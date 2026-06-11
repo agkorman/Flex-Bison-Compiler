@@ -1,11 +1,8 @@
 app MyApp {
     network main {
-        proxy web using "nginx:latest";
         service backend using "node:20";
         database db using "postgres:16";
-        expose web on 80;
         expose backend on 3000;
-        web -> backend;
         backend -> db;
     }
 }

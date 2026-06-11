@@ -17,11 +17,18 @@ ModuleDestructor initializeBisonActionsModule(CompilerState * compilerState);
  */
 
 Program * AppProgramSemanticAction(App * app);
-App * AppSemanticAction(char * name, Declaration * declarations);
+App * AppSemanticAction(char * name, AppItem * items);
+AppItem * SingleAppItemSemanticAction(AppItem * item);
+AppItem * AppendAppItemSemanticAction(AppItem * list, AppItem * item);
+AppItem * NetworkAppItemSemanticAction(Network * network);
+AppItem * NetworkConnectAppItemSemanticAction(char * from, char * to);
+Network * NetworkSemanticAction(char * name, Declaration * declarations);
 Declaration * SingleDeclarationSemanticAction(Declaration * declaration);
 Declaration * AppendDeclarationSemanticAction(Declaration * list, Declaration * declaration);
 Declaration * ServiceDeclarationSemanticAction(RoleType role, char * name, char * image);
 Declaration * ExposeDeclarationSemanticAction(char * serviceName, int port);
 Declaration * ConnectDeclarationSemanticAction(char * from, char * to);
+Declaration * VolumeDeclarationSemanticAction(char * name);
+Declaration * MountDeclarationSemanticAction(MountSourceType sourceType, char * source, char * serviceName, char * containerPath);
 
 #endif

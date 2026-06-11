@@ -1,5 +1,6 @@
-app {
+app MyApp {
     network main {
         service backend using "node:18";
+        backend -> ;
     }
 }

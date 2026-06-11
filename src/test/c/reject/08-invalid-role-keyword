@@ -1,3 +1,6 @@
+// "frontend" is no longer a role keyword; it lexes as an identifier
 app MyApp {
-    service backend using "node:18";
+    network main {
+        frontend web using "nginx:latest";
+    }
 }

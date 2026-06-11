@@ -67,10 +67,50 @@ src/main/bash/test.sh
 
 The fixtures under `src/test/c/reject-stage3` document semantic rejection cases
 that require the Stage III backend/semantic-analysis phase, such as duplicate
-service names, missing service references, invalid exposed ports, or exposing
-internal services. They are intentionally not executed by the Stage II test
-script because the current deliverable only validates lexical and syntactic
-analysis and AST construction.
+service or network names, missing service references, invalid exposed ports,
+exposing internal services (e.g. a `database`), cross-network connections
+without an app-level network link, or mounts that reference undeclared volumes
+or services. They are intentionally not executed by the Stage II test script
+because the current deliverable only validates lexical and syntactic analysis
+and AST construction.
+
+### Language
+
+A StackForge program declares an `app` composed of one or more `network`
+blocks (each network maps to an isolated Docker Compose network) plus
+network-to-network links. Inside a network, services are declared with a
+topological role — `proxy` (reverse-proxy, meant to be exposed), `service`
+(generic internal application), `static` (static content server), `database`,
+and `cache` (internal by default) — and can be exposed, connected with the
+`->` operator, and given volumes or host mounts:
+
+```
+app Shop {
+    network edge {
+        proxy gateway using "nginx:1.25";
+        static assets using "nginx:1.25";
+        expose gateway on 80;
+        gateway -> assets;
+    }
+    network backend {
+        service api using "node:20";
+        database db using "postgres:16";
+        cache sessions using "redis:7";
+        api -> db;
+        api -> sessions;
+        volume pgdata;
+        mount pgdata on db at "/var/lib/postgresql/data";
+        mount "./src" on api at "/app/src";
+    }
+    edge -> backend;
+}
+```
+
+Each role implies a distinct network topology in the generated artifact. In
+Stage III, the compiler will derive a `docker-compose.yml` (networks,
+memberships, dependencies, volumes, and published ports) from a valid
+specification, along with a very basic per-service scaffolding (folders and
+Dockerfile stubs for known images).
 
 ### Stop
 

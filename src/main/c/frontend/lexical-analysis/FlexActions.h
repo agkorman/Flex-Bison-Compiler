@@ -15,23 +15,28 @@
 /** Initialize module's internal state. */
 ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer);
 
-CompilationStatus ApiLexemeAction();
 CompilationStatus AppLexemeAction();
+CompilationStatus ArrowLexemeAction();
+CompilationStatus AtLexemeAction();
 CompilationStatus CacheLexemeAction();
 CompilationStatus CloseBraceLexemeAction();
-CompilationStatus ConnectsToLexemeAction();
 CompilationStatus DatabaseLexemeAction();
 CompilationStatus EndLexemeAction();
 CompilationStatus ExposeLexemeAction();
-CompilationStatus FrontendLexemeAction();
 CompilationStatus IdentifierLexemeAction();
 CompilationStatus IgnoredLexemeAction();
 CompilationStatus IntegerLexemeAction();
+CompilationStatus MountLexemeAction();
+CompilationStatus NetworkLexemeAction();
 CompilationStatus OnLexemeAction();
 CompilationStatus OpenBraceLexemeAction();
+CompilationStatus ProxyLexemeAction();
 CompilationStatus SemicolonLexemeAction();
+CompilationStatus ServiceLexemeAction();
+CompilationStatus StaticLexemeAction();
 CompilationStatus StringLexemeAction();
 CompilationStatus UnknownLexemeAction();
 CompilationStatus UsingLexemeAction();
+CompilationStatus VolumeLexemeAction();
 
 #endif

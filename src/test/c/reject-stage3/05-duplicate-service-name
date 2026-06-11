@@ -1,0 +1,7 @@
+// backend implementation required
+app MyApp {
+    network main {
+        service backend using "node:18";
+        database backend using "postgres:16";
+    }
+}
