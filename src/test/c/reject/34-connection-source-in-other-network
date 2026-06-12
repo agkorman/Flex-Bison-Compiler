@@ -1,5 +1,4 @@
-// backend implementation required: a connection must be declared in the
-// network of its source service, otherwise the generator would drop it
+// connections must be declared in the network of their source
 app MyApp {
     network edge {
         proxy web using "nginx:latest";

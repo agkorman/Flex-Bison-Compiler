@@ -25,6 +25,8 @@ typedef struct App App;
 typedef struct Program Program;
 
 enum RoleType {
+	/** Sentinel for symbols that have no role (networks, volumes). */
+	NO_ROLE,
 	PROXY_ROLE,
 	SERVICE_ROLE,
 	STATIC_ROLE,

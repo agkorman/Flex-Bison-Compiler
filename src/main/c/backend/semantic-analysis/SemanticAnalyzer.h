@@ -12,10 +12,8 @@
 ModuleDestructor initializeSemanticAnalyzerModule();
 
 /**
- * Walks the AST in two passes: the first one populates the symbol table with
- * every declared network, service and volume (reporting duplicates); the
- * second one validates every reference and domain rule. On success, the
- * symbol table is left inside the compiler state for later phases.
+ * Validates the AST in two passes (declarations, then references) and leaves
+ * the symbol table inside the compiler state for the generator.
  */
 CompilationStatus executeSemanticAnalysis(CompilerState * compilerState);
 

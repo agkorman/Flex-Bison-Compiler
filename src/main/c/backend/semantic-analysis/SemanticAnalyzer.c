@@ -27,7 +27,6 @@ static void _reportError(const char * const format, ...) {
 	va_list arguments;
 	va_start(arguments, format);
 	char * effectiveFormat = concatenate(2, "Semantic error: ", format);
-	// Reuse the logger machinery through a single formatted message.
 	char buffer[1024];
 	vsnprintf(buffer, sizeof(buffer), effectiveFormat, arguments);
 	logError(_logger, "%s", buffer);
@@ -36,10 +35,7 @@ static void _reportError(const char * const format, ...) {
 	++_errorCount;
 }
 
-/**
- * First pass: declare every network, service and volume in the symbol table,
- * reporting duplicate declarations within the same scope.
- */
+/** First pass: declare every network, service and volume, rejecting duplicates. */
 static void _declareSymbols(SymbolTable * table, App * app) {
 	for (AppItem * item = app->items; item != NULL; item = item->next) {
 		if (item->type != NETWORK_ITEM) {
@@ -50,7 +46,7 @@ static void _declareSymbols(SymbolTable * table, App * app) {
 			_reportError("duplicate network \"%s\" in app \"%s\".", network->name, app->name);
 		}
 		else {
-			insertSymbol(table, NETWORK_SYMBOL, network->name, NULL, SERVICE_ROLE);
+			insertSymbol(table, NETWORK_SYMBOL, network->name, NULL, NO_ROLE);
 		}
 		for (Declaration * declaration = network->declarations; declaration != NULL; declaration = declaration->next) {
 			switch (declaration->type) {
@@ -60,10 +56,9 @@ static void _declareSymbols(SymbolTable * table, App * app) {
 						_reportError("duplicate service \"%s\" in network \"%s\".", service->name, network->name);
 					}
 					else {
+						// Service names are global: they become Compose service keys.
 						Symbol * homonym = lookupSymbolAnywhere(table, SERVICE_SYMBOL, service->name);
 						if (homonym != NULL) {
-							// A repeated name across networks would collide as a
-							// Compose service key, so it is rejected outright.
 							_reportError("duplicate service \"%s\": already declared in network \"%s\".", service->name, homonym->networkName);
 						}
 						else {
@@ -78,14 +73,13 @@ static void _declareSymbols(SymbolTable * table, App * app) {
 						_reportError("duplicate volume \"%s\" in network \"%s\".", volume->name, network->name);
 					}
 					else {
+						// Volume names are global too: they become Compose volume keys.
 						Symbol * homonym = lookupSymbolAnywhere(table, VOLUME_SYMBOL, volume->name);
 						if (homonym != NULL) {
-							// A repeated name across networks would collide as a
-							// Compose volume key, so it is rejected outright.
 							_reportError("duplicate volume \"%s\": already declared in network \"%s\".", volume->name, homonym->networkName);
 						}
 						else {
-							insertSymbol(table, VOLUME_SYMBOL, volume->name, network->name, SERVICE_ROLE);
+							insertSymbol(table, VOLUME_SYMBOL, volume->name, network->name, NO_ROLE);
 						}
 					}
 					break;
@@ -110,10 +104,7 @@ static int _networksAreLinked(App * app, const char * fromNetwork, const char * 
 	return 0;
 }
 
-/**
- * Resolves a service reference from within a network: the local scope wins,
- * and only then the rest of the networks are searched (cross-network use).
- */
+/** Resolves a service reference: local scope first, then any other network. */
 static Symbol * _resolveService(SymbolTable * table, const char * name, const char * networkName) {
 	Symbol * local = lookupSymbol(table, SERVICE_SYMBOL, name, networkName);
 	if (local != NULL) {
@@ -136,10 +127,7 @@ static void _validateExpose(SymbolTable * table, Network * network, ExposeDeclar
 	}
 }
 
-/**
- * Rejects exposing the same service on the same port more than once: the
- * generator would emit duplicate "ports:" entries in the Compose file.
- */
+/** Same service on the same port twice would duplicate "ports:" entries. */
 static void _checkDuplicateExpose(Network * network, Declaration * current) {
 	ExposeDeclaration * expose = current->expose;
 	for (Declaration * declaration = network->declarations; declaration != current; declaration = declaration->next) {
@@ -153,10 +141,27 @@ static void _checkDuplicateExpose(Network * network, Declaration * current) {
 	}
 }
 
+/** The same connection twice would duplicate "depends_on" entries. */
+static void _checkDuplicateConnect(Network * network, Declaration * current) {
+	ConnectDeclaration * connect = current->connect;
+	for (Declaration * declaration = network->declarations; declaration != current; declaration = declaration->next) {
+		if (declaration->type == CONNECT_DECLARATION
+			&& strcmp(declaration->connect->from, connect->from) == 0
+			&& strcmp(declaration->connect->to, connect->to) == 0) {
+			_reportError("duplicate connection \"%s -> %s\" in network \"%s\".",
+				connect->from, connect->to, network->name);
+			return;
+		}
+	}
+}
+
 static void _validateConnect(SymbolTable * table, App * app, Network * network, ConnectDeclaration * connect) {
-	// The source must be local: the generator emits connections while walking
-	// the declarations of the source's own network, so a connection declared
-	// elsewhere would be silently dropped from the Compose output.
+	// Compose rejects a service that depends on itself.
+	if (strcmp(connect->from, connect->to) == 0) {
+		_reportError("service \"%s\" cannot connect to itself.", connect->from);
+		return;
+	}
+	// The source must live in this network, or the generator would drop the connection.
 	Symbol * from = lookupSymbol(table, SERVICE_SYMBOL, connect->from, network->name);
 	Symbol * to = _resolveService(table, connect->to, network->name);
 	if (from == NULL) {
@@ -217,6 +222,7 @@ static void _validateReferences(SymbolTable * table, App * app) {
 					break;
 				case CONNECT_DECLARATION:
 					_validateConnect(table, app, network, declaration->connect);
+					_checkDuplicateConnect(network, declaration);
 					break;
 				case MOUNT_DECLARATION:
 					_validateMount(table, network, declaration->mount);
@@ -243,7 +249,7 @@ CompilationStatus executeSemanticAnalysis(CompilerState * compilerState) {
 	_declareSymbols(table, program->app);
 	_validateReferences(table, program->app);
 	if (0 < _errorCount) {
-		logError(_logger, "The semantic-analysis phase found %d error(s).", _errorCount);
+		logError(_logger, "The semantic-analysis phase found %u error(s).", _errorCount);
 		return FAILED;
 	}
 	logDebugging(_logger, "Semantic analysis is done.");

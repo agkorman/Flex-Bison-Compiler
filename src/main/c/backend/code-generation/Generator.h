@@ -12,8 +12,7 @@ ModuleDestructor initializeGeneratorModule();
 
 /**
  * Generates the final output using the current compiler state. Fails when
- * any artifact cannot be written, so a partial output tree is never reported
- * as a successful compilation.
+ * any artifact cannot be written.
  */
 CompilationStatus executeGenerator(CompilerState * compilerState);
 

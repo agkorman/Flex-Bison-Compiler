@@ -1,4 +1,3 @@
-// backend implementation required
 app MyApp {
     network main {
         proxy web using "nginx:latest";

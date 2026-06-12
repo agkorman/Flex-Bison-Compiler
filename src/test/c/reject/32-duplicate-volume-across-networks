@@ -1,5 +1,4 @@
-// backend implementation required: volume names are global because they
-// become Docker Compose volume keys, so they cannot repeat across networks
+// volume names are global (they become Compose volume keys)
 app MyApp {
     network data {
         database db using "postgres:16";

@@ -1,5 +1,4 @@
-// A service may target a service in another network when an app-level
-// link between both networks exists
+// cross-network arrows are valid when the networks are linked
 app CrossNet {
     network edge {
         proxy web using "nginx:latest";

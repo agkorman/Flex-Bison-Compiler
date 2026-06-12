@@ -1,5 +1,4 @@
-// backend implementation required: exposing the same service on the same
-// port twice would emit duplicate "ports:" entries in the Compose file
+// duplicate expose of the same service on the same port
 app MyApp {
     network main {
         proxy web using "nginx:latest";

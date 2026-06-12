@@ -19,20 +19,16 @@ enum SymbolKind {
 };
 
 /**
- * Symbols do not own their strings: "name" and "networkName" alias memory
- * owned by the AST, so the symbol table must be destroyed before the program
- * (see the teardown order in EntryPoint.c).
+ * Symbols do not own their strings: they alias memory owned by the AST, so
+ * the table must be destroyed before the program (see EntryPoint.c).
  */
 struct Symbol {
 	SymbolKind kind;
 	char * name;
-
-	/** The owning network for services and volumes; NULL for networks. */
+	/** NULL for networks. */
 	char * networkName;
-
-	/** Only meaningful for services. */
+	/** NO_ROLE for everything but services. */
 	RoleType role;
-
 	Symbol * next;
 };
 
@@ -43,23 +39,13 @@ struct SymbolTable {
 SymbolTable * createSymbolTable();
 void destroySymbolTable(SymbolTable * table);
 
-/**
- * Inserts a new symbol. Uniqueness is NOT enforced here; callers must check
- * with a lookup before inserting (the semantic analyzer reports duplicates).
- */
+/** Inserts a new symbol; uniqueness must be checked by the caller. */
 Symbol * insertSymbol(SymbolTable * table, SymbolKind kind, char * name, char * networkName, RoleType role);
 
-/**
- * Finds a symbol of the given kind and name inside the given scope. A NULL
- * networkName matches symbols without an owning network (i.e., networks).
- */
+/** Finds a symbol inside the given scope (NULL networkName matches networks). */
 Symbol * lookupSymbol(SymbolTable * table, SymbolKind kind, const char * name, const char * networkName);
 
-/**
- * Finds the first symbol of the given kind with the given name in any
- * network (used to resolve cross-network references after the local scope
- * misses, and to enforce global uniqueness of Compose keys).
- */
+/** Finds a symbol with the given name in any network. */
 Symbol * lookupSymbolAnywhere(SymbolTable * table, SymbolKind kind, const char * name);
 
 #endif

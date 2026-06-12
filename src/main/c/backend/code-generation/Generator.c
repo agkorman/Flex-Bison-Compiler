@@ -26,10 +26,6 @@ ModuleDestructor initializeGeneratorModule() {
 
 /* PRIVATE FUNCTIONS */
 
-/**
- * Abstracts the final destination of the generated code, as every generation
- * procedure emits its output through this function.
- */
 static void _output(FILE * file, const char * const format, ...) {
 	va_list arguments;
 	va_start(arguments, format);
@@ -56,13 +52,7 @@ static const char * _roleName(RoleType role) {
 	}
 }
 
-/**
- * Appends a network name to the list if it is not already present. The list
- * is sized for every network declared in the app, which bounds this insert
- * only because semantic analysis already guaranteed that every name reaching
- * this point belongs to a declared network; do not call the generator on an
- * unvalidated AST.
- */
+/** Appends a network name to the list if it is not already there. */
 static void _addNetwork(const char ** networks, unsigned int * count, const char * name) {
 	for (unsigned int k = 0; k < *count; ++k) {
 		if (strcmp(networks[k], name) == 0) {
@@ -84,11 +74,8 @@ static unsigned int _countNetworks(App * app) {
 }
 
 /**
- * Computes every network a service belongs to: its own network, the network
- * of every service it points to (only reachable when an app-level link
- * exists, already validated), and for proxies, the target of every app-level
- * link that starts at its own network (the proxy is the bridge that
- * materializes the "intention" of a network link in Compose).
+ * Networks a service belongs to: its own, the ones of its targets, and for
+ * proxies, the targets of the app-level links starting at its network.
  */
 static unsigned int _serviceNetworks(App * app, SymbolTable * table, Network * network,
 	ServiceDeclaration * service, const char ** networks) {
@@ -241,8 +228,6 @@ static CompilationStatus _generateScaffolding(const char * appPath, App * app) {
 							_output(dockerfile, "# CMD [\"...\"]\n");
 							break;
 						default:
-							// Databases and caches are configured through their
-							// image and environment, not through a custom build.
 							_output(dockerfile, "\n# This %s is internal by design; configure it via environment variables.\n",
 								_roleName(service->role));
 							break;

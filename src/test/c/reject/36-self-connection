@@ -1,6 +1,7 @@
+// a service cannot connect to itself
 app MyApp {
     network main {
         service backend using "node:18";
-        expose web on 8080;
+        backend -> backend;
     }
 }

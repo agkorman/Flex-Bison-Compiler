@@ -1,5 +1,4 @@
-// backend implementation required: service names are global because they
-// become Docker Compose service keys, so they cannot repeat across networks
+// service names are global (they become Compose service keys)
 app MyApp {
     network edge {
         service worker using "node:20";

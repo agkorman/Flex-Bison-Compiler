@@ -12,8 +12,7 @@ typedef struct {
 	void * abstractSyntaxtTree;
 
 	/**
-	 * The symbol table built during the semantic-analysis phase (an opaque
-	 * SymbolTable pointer; scopes are flat: app-level and network-level).
+	 * The symbol table built during the semantic-analysis phase.
 	 */
 	void * symbolTable;
 } CompilerState;

@@ -154,9 +154,7 @@ CompilationStatus IgnoredLexemeAction() {
 
 CompilationStatus IntegerLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, INTEGER);
-	// An out-of-range literal must not wrap into the valid range (atoi is
-	// undefined on overflow), so it is stored as -1 and rejected later by the
-	// semantic checks that consume integers.
+	// Out-of-range literals become -1 so they don't wrap into the valid range.
 	errno = 0;
 	long value = strtol(token->lexeme, NULL, 10);
 	if (errno == ERANGE || INT_MAX < value) {

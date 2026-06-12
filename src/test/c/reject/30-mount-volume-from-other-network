@@ -1,4 +1,4 @@
-// backend implementation required: volumes are scoped to their network
+// volumes are scoped to their network
 app MyApp {
     network data {
         database db using "postgres:16";

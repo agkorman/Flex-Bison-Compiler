@@ -1,5 +1,4 @@
-// backend implementation required: an out-of-range port literal must not
-// wrap around into the valid 1-65535 range (4294967297 mod 2^32 is 1)
+// out-of-range port literal must not wrap into the valid range
 app MyApp {
     network main {
         proxy web using "nginx:latest";
