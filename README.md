@@ -37,6 +37,18 @@ Rises an ephemeral container, ready to start development:
 docker compose run --rm compiler
 ```
 
+> [!IMPORTANT]
+> `docker compose run` reuses an existing image and does **not** rebuild it.
+> If the container image's Dockerfile (`src/main/docker/compiler/Dockerfile`)
+> changed since your last build (e.g. after pulling new commits), rebuild the
+> image first — otherwise tools added to the image (such as `docker compose`,
+> required by `test.sh` to validate generated Compose files) will be missing
+> and those checks will be skipped:
+>
+> ```bash
+> docker compose run --rm --build compiler
+> ```
+
 ### Build
 
 Builds or rebuilds the entire compiler:
