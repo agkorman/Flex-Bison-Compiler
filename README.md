@@ -67,9 +67,16 @@ The fixtures under `src/test/c/accept` must compile, while the ones under
 `src/test/c/reject` must fail in any phase: lexical or syntactic analysis
 (e.g. malformed programs), or the Stage III semantic analysis, which rejects
 duplicate service, network or volume names, missing service references,
-invalid exposed ports, exposing internal services (e.g. a `database`),
-cross-network connections without an app-level network link, or mounts that
-reference undeclared volumes or services.
+invalid exposed ports, duplicate exposes (same service on the same port),
+exposing internal services (e.g. a `database`), cross-network connections
+without an app-level network link, connections declared outside the network
+of their source service, or mounts that reference undeclared volumes or
+services.
+
+Note that host-path mounts (e.g. `mount "./src" on api at "/app/src";`) are
+emitted verbatim, and Docker Compose resolves relative paths against the
+generated file's directory (`output/<app>/`), not against the directory where
+the compiler ran.
 
 ### Language
 

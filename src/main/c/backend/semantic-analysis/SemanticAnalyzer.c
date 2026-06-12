@@ -136,11 +136,38 @@ static void _validateExpose(SymbolTable * table, Network * network, ExposeDeclar
 	}
 }
 
+/**
+ * Rejects exposing the same service on the same port more than once: the
+ * generator would emit duplicate "ports:" entries in the Compose file.
+ */
+static void _checkDuplicateExpose(Network * network, Declaration * current) {
+	ExposeDeclaration * expose = current->expose;
+	for (Declaration * declaration = network->declarations; declaration != current; declaration = declaration->next) {
+		if (declaration->type == EXPOSE_DECLARATION
+			&& strcmp(declaration->expose->serviceName, expose->serviceName) == 0
+			&& declaration->expose->port == expose->port) {
+			_reportError("duplicate expose of service \"%s\" on port %d in network \"%s\".",
+				expose->serviceName, expose->port, network->name);
+			return;
+		}
+	}
+}
+
 static void _validateConnect(SymbolTable * table, App * app, Network * network, ConnectDeclaration * connect) {
-	Symbol * from = _resolveService(table, connect->from, network->name);
+	// The source must be local: the generator emits connections while walking
+	// the declarations of the source's own network, so a connection declared
+	// elsewhere would be silently dropped from the Compose output.
+	Symbol * from = lookupSymbol(table, SERVICE_SYMBOL, connect->from, network->name);
 	Symbol * to = _resolveService(table, connect->to, network->name);
 	if (from == NULL) {
-		_reportError("connection \"%s -> %s\" references undeclared service \"%s\".", connect->from, connect->to, connect->from);
+		Symbol * foreign = lookupSymbolAnywhere(table, SERVICE_SYMBOL, connect->from);
+		if (foreign != NULL) {
+			_reportError("connection \"%s -> %s\" must be declared in network \"%s\", where its source \"%s\" lives (not in \"%s\").",
+				connect->from, connect->to, foreign->networkName, connect->from, network->name);
+		}
+		else {
+			_reportError("connection \"%s -> %s\" references undeclared service \"%s\".", connect->from, connect->to, connect->from);
+		}
 	}
 	if (to == NULL) {
 		_reportError("connection \"%s -> %s\" references undeclared service \"%s\".", connect->from, connect->to, connect->to);
@@ -186,6 +213,7 @@ static void _validateReferences(SymbolTable * table, App * app) {
 			switch (declaration->type) {
 				case EXPOSE_DECLARATION:
 					_validateExpose(table, network, declaration->expose);
+					_checkDuplicateExpose(network, declaration);
 					break;
 				case CONNECT_DECLARATION:
 					_validateConnect(table, app, network, declaration->connect);

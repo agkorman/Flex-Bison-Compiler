@@ -1,4 +1,7 @@
 #include "FlexActions.h"
+#include <errno.h>
+#include <limits.h>
+#include <stdlib.h>
 
 /* MODULE INTERNAL STATE */
 
@@ -151,7 +154,15 @@ CompilationStatus IgnoredLexemeAction() {
 
 CompilationStatus IntegerLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, INTEGER);
-	token->semanticValue->integer = atoi(token->lexeme);
+	// An out-of-range literal must not wrap into the valid range (atoi is
+	// undefined on overflow), so it is stored as -1 and rejected later by the
+	// semantic checks that consume integers.
+	errno = 0;
+	long value = strtol(token->lexeme, NULL, 10);
+	if (errno == ERANGE || INT_MAX < value) {
+		value = -1;
+	}
+	token->semanticValue->integer = (int) value;
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);

@@ -18,6 +18,11 @@ enum SymbolKind {
 	VOLUME_SYMBOL
 };
 
+/**
+ * Symbols do not own their strings: "name" and "networkName" alias memory
+ * owned by the AST, so the symbol table must be destroyed before the program
+ * (see the teardown order in EntryPoint.c).
+ */
 struct Symbol {
 	SymbolKind kind;
 	char * name;

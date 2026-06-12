@@ -56,7 +56,13 @@ static const char * _roleName(RoleType role) {
 	}
 }
 
-/** Appends a network name to the list if it is not already present. */
+/**
+ * Appends a network name to the list if it is not already present. The list
+ * is sized for every network declared in the app, which bounds this insert
+ * only because semantic analysis already guaranteed that every name reaching
+ * this point belongs to a declared network; do not call the generator on an
+ * unvalidated AST.
+ */
 static void _addNetwork(const char ** networks, unsigned int * count, const char * name) {
 	for (unsigned int k = 0; k < *count; ++k) {
 		if (strcmp(networks[k], name) == 0) {
