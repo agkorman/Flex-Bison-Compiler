@@ -1,4 +1,4 @@
-app MyApp {
+app AllRoles {
     network main {
         proxy gateway using "nginx:1.25";
         service backend using "node:20";

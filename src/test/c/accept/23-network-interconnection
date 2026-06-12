@@ -1,4 +1,4 @@
-app MyApp {
+app NetworkLink {
     network edge {
         proxy web using "nginx:latest";
     }

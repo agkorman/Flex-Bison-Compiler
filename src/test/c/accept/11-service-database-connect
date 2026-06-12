@@ -1,4 +1,4 @@
-app MyApp {
+app DatabaseConnect {
     network main {
         backend -> db;
         service backend using "node:18";

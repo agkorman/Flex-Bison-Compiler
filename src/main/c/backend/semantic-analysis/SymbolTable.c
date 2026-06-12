@@ -73,9 +73,9 @@ Symbol * lookupSymbol(SymbolTable * table, SymbolKind kind, const char * name, c
 	return NULL;
 }
 
-Symbol * lookupServiceAnywhere(SymbolTable * table, const char * name) {
+Symbol * lookupSymbolAnywhere(SymbolTable * table, SymbolKind kind, const char * name) {
 	for (Symbol * symbol = table->first; symbol != NULL; symbol = symbol->next) {
-		if (symbol->kind == SERVICE_SYMBOL && strcmp(symbol->name, name) == 0) {
+		if (symbol->kind == kind && strcmp(symbol->name, name) == 0) {
 			return symbol;
 		}
 	}

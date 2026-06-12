@@ -1,4 +1,4 @@
-app MyApp {
+app TwoNetworks {
     network edge {
         proxy web using "nginx:latest";
     }

@@ -1,4 +1,4 @@
-app MyApp {
+app ArrowConnect {
     network main {
         service backend using "node:18";
         database db using "postgres:16";

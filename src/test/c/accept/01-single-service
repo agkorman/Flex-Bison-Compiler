@@ -1,4 +1,4 @@
-app MyApp {
+app SingleService {
     network main {
         service backend using "node:18";
     }

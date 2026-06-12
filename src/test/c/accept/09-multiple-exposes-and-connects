@@ -1,4 +1,4 @@
-app MyApp {
+app MultiExpose {
     network main {
         proxy web using "nginx:latest";
         service backend using "node:20";

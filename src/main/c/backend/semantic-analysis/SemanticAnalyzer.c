@@ -60,7 +60,7 @@ static void _declareSymbols(SymbolTable * table, App * app) {
 						_reportError("duplicate service \"%s\" in network \"%s\".", service->name, network->name);
 					}
 					else {
-						Symbol * homonym = lookupServiceAnywhere(table, service->name);
+						Symbol * homonym = lookupSymbolAnywhere(table, SERVICE_SYMBOL, service->name);
 						if (homonym != NULL) {
 							// A repeated name across networks would collide as a
 							// Compose service key, so it is rejected outright.
@@ -78,7 +78,15 @@ static void _declareSymbols(SymbolTable * table, App * app) {
 						_reportError("duplicate volume \"%s\" in network \"%s\".", volume->name, network->name);
 					}
 					else {
-						insertSymbol(table, VOLUME_SYMBOL, volume->name, network->name, SERVICE_ROLE);
+						Symbol * homonym = lookupSymbolAnywhere(table, VOLUME_SYMBOL, volume->name);
+						if (homonym != NULL) {
+							// A repeated name across networks would collide as a
+							// Compose volume key, so it is rejected outright.
+							_reportError("duplicate volume \"%s\": already declared in network \"%s\".", volume->name, homonym->networkName);
+						}
+						else {
+							insertSymbol(table, VOLUME_SYMBOL, volume->name, network->name, SERVICE_ROLE);
+						}
 					}
 					break;
 				}
@@ -111,7 +119,7 @@ static Symbol * _resolveService(SymbolTable * table, const char * name, const ch
 	if (local != NULL) {
 		return local;
 	}
-	return lookupServiceAnywhere(table, name);
+	return lookupSymbolAnywhere(table, SERVICE_SYMBOL, name);
 }
 
 static void _validateExpose(SymbolTable * table, Network * network, ExposeDeclaration * expose) {

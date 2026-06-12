@@ -95,7 +95,7 @@ static unsigned int _serviceNetworks(App * app, SymbolTable * table, Network * n
 		}
 		Symbol * target = lookupSymbol(table, SERVICE_SYMBOL, declaration->connect->to, network->name);
 		if (target == NULL) {
-			target = lookupServiceAnywhere(table, declaration->connect->to);
+			target = lookupSymbolAnywhere(table, SERVICE_SYMBOL, declaration->connect->to);
 		}
 		if (target != NULL) {
 			_addNetwork(networks, &count, target->networkName);

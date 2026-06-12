@@ -1,4 +1,4 @@
-app MyApp {
+app SingleStatic {
     network main {
         static assets using "nginx:latest";
     }

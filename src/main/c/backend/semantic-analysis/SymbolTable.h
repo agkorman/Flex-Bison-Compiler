@@ -51,9 +51,10 @@ Symbol * insertSymbol(SymbolTable * table, SymbolKind kind, char * name, char * 
 Symbol * lookupSymbol(SymbolTable * table, SymbolKind kind, const char * name, const char * networkName);
 
 /**
- * Finds the first service with the given name in any network (used to
- * resolve cross-network references after the local scope misses).
+ * Finds the first symbol of the given kind with the given name in any
+ * network (used to resolve cross-network references after the local scope
+ * misses, and to enforce global uniqueness of Compose keys).
  */
-Symbol * lookupServiceAnywhere(SymbolTable * table, const char * name);
+Symbol * lookupSymbolAnywhere(SymbolTable * table, SymbolKind kind, const char * name);
 
 #endif
