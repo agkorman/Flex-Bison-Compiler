@@ -9,7 +9,6 @@ A StackForge compiler developed in C with Flex and Bison by A.Korman, J.Nolasco,
 * [Requirements](#requirements)
 * [Configuration](#configuration)
 * [Commands](#commands)
-* [CI/CD](#cicd)
 * [Recommended Extensions](#recommended-extensions)
 
 ## Requirements
@@ -128,18 +127,6 @@ docker compose down
 | `docker image prune`                    | Removes all of the dangling images from Docker.         |
 | `docker network prune`                  | Removes unused networks from Docker.                    |
 | `docker volume prune`                   | Removes unused volumes from Docker.                     |
-
-## CI/CD
-
-To trigger an automatic integration on every push or PR (_Pull Request_), you must activate _GitHub Actions_ in the _Settings_ tab. Use the following configuration:
-
-| Key                                                        | Value                                               |
-| :--------------------------------------------------------- | :-------------------------------------------------- |
-| `Actions permissions`                                      | `Allow all actions and reusable workflows`          |
-| `Allow GitHub Actions to create and approve pull requests` | `false`                                             |
-| `Artifact and log retention`                               | `30 days`                                           |
-| `Fork pull request workflows from outside collaborators`   | `Require approval for all outside collaborators`    |
-| `Workflow permissions`                                     | `Read repository contents and packages permissions` |
 
 ## Recommended Extensions
 
