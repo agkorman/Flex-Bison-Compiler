@@ -1,0 +1,10 @@
+// backend implementation required: service names are global because they
+// become Docker Compose service keys, so they cannot repeat across networks
+app MyApp {
+    network edge {
+        service worker using "node:20";
+    }
+    network core {
+        service worker using "python:3.12";
+    }
+}

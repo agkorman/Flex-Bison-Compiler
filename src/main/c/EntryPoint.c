@@ -38,7 +38,10 @@ const int main(const int length, const char ** arguments) {
 	if (compilationStatus == SUCCEEDED) {
 		compilationStatus = executeSemanticAnalysis(&compilerState);
 		if (compilationStatus == SUCCEEDED) {
-			executeGenerator(&compilerState);
+			compilationStatus = executeGenerator(&compilerState);
+			if (compilationStatus != SUCCEEDED) {
+				logError(logger, "The code-generation phase could not write the output artifacts.");
+			}
 		}
 		else {
 			logError(logger, "The semantic-analysis phase rejects the input program.");

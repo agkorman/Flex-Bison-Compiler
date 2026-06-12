@@ -40,5 +40,25 @@ for test in $(ls src/test/c/reject/); do
 done
 echo ""
 
+echo "Generated artifacts should be valid Compose files..."
+echo ""
+
+if docker compose version >/dev/null 2>&1; then
+	for compose in output/*/docker-compose.yml; do
+		[ -e "$compose" ] || continue
+		docker compose -f "$compose" config --quiet >/dev/null 2>&1
+		RESULT="$?"
+		if [ "$RESULT" == "0" ]; then
+			echo -e "    $compose, ${GREEN}and it is${OFF}"
+		else
+			STATUS=1
+			echo -e "    $compose, ${RED}but it is not${OFF} (status $RESULT)"
+		fi
+	done
+else
+	echo "    (skipped: docker compose is not available in this environment)"
+fi
+echo ""
+
 echo "All done."
 exit $STATUS

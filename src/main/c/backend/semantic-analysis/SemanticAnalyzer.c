@@ -60,10 +60,15 @@ static void _declareSymbols(SymbolTable * table, App * app) {
 						_reportError("duplicate service \"%s\" in network \"%s\".", service->name, network->name);
 					}
 					else {
-						if (lookupServiceAnywhere(table, service->name) != NULL) {
-							logWarning(_logger, "Service \"%s\" is also declared in another network; generated artifacts may collide.", service->name);
+						Symbol * homonym = lookupServiceAnywhere(table, service->name);
+						if (homonym != NULL) {
+							// A repeated name across networks would collide as a
+							// Compose service key, so it is rejected outright.
+							_reportError("duplicate service \"%s\": already declared in network \"%s\".", service->name, homonym->networkName);
 						}
-						insertSymbol(table, SERVICE_SYMBOL, service->name, network->name, service->role);
+						else {
+							insertSymbol(table, SERVICE_SYMBOL, service->name, network->name, service->role);
+						}
 					}
 					break;
 				}

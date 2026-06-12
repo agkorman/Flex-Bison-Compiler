@@ -195,11 +195,12 @@ static void _generateComposeFile(FILE * file, App * app, SymbolTable * table) {
 }
 
 /** Emits a per-service folder with a minimal Dockerfile stub. */
-static void _generateScaffolding(const char * appPath, App * app) {
+static CompilationStatus _generateScaffolding(const char * appPath, App * app) {
+	CompilationStatus status = SUCCEEDED;
 	char * servicesPath = concatenate(2, appPath, "/services");
 	if (!_makeDirectory(servicesPath)) {
 		free(servicesPath);
-		return;
+		return FAILED;
 	}
 	for (AppItem * item = app->items; item != NULL; item = item->next) {
 		if (item->type != NETWORK_ITEM) {
@@ -244,33 +245,38 @@ static void _generateScaffolding(const char * appPath, App * app) {
 				}
 				else {
 					logError(_logger, "Cannot create \"%s\".", dockerfilePath);
+					status = FAILED;
 				}
 				free(dockerfilePath);
+			}
+			else {
+				status = FAILED;
 			}
 			free(servicePath);
 		}
 	}
 	free(servicesPath);
+	return status;
 }
 
 /* PUBLIC FUNCTIONS */
 
-void executeGenerator(CompilerState * compilerState) {
+CompilationStatus executeGenerator(CompilerState * compilerState) {
 	logDebugging(_logger, "Generating final output...");
 	Program * program = compilerState->abstractSyntaxtTree;
 	SymbolTable * table = compilerState->symbolTable;
 	if (program == NULL || program->app == NULL || table == NULL) {
 		logError(_logger, "There is no validated program to generate.");
-		return;
+		return FAILED;
 	}
 	App * app = program->app;
 	if (!_makeDirectory("output")) {
-		return;
+		return FAILED;
 	}
 	char * appPath = concatenate(2, "output/", app->name);
 	if (!_makeDirectory(appPath)) {
 		free(appPath);
-		return;
+		return FAILED;
 	}
 	char * composePath = concatenate(2, appPath, "/docker-compose.yml");
 	FILE * composeFile = fopen(composePath, "w");
@@ -278,13 +284,16 @@ void executeGenerator(CompilerState * compilerState) {
 		logError(_logger, "Cannot create \"%s\".", composePath);
 		free(composePath);
 		free(appPath);
-		return;
+		return FAILED;
 	}
 	_generateComposeFile(composeFile, app, table);
 	fclose(composeFile);
-	_generateScaffolding(appPath, app);
-	logInformation(_logger, "Artifacts generated under \"%s\".", appPath);
+	CompilationStatus status = _generateScaffolding(appPath, app);
+	if (status == SUCCEEDED) {
+		logInformation(_logger, "Artifacts generated under \"%s\".", appPath);
+	}
 	free(composePath);
 	free(appPath);
 	logDebugging(_logger, "Generation is done.");
+	return status;
 }
