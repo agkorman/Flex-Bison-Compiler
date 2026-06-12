@@ -35,6 +35,28 @@ static void _reportError(const char * const format, ...) {
 	++_errorCount;
 }
 
+static void _validateServiceDeclarations(App * app) {
+	unsigned int serviceCount = 0;
+	for (AppItem * item = app->items; item != NULL; item = item->next) {
+		if (item->type != NETWORK_ITEM) {
+			continue;
+		}
+		for (Declaration * declaration = item->network->declarations; declaration != NULL; declaration = declaration->next) {
+			if (declaration->type != SERVICE_DECLARATION) {
+				continue;
+			}
+			++serviceCount;
+			if (declaration->service->image == NULL || declaration->service->image[0] == '\0') {
+				_reportError("service \"%s\" in network \"%s\" must use a non-empty image.",
+					declaration->service->name, item->network->name);
+			}
+		}
+	}
+	if (serviceCount == 0) {
+		_reportError("app \"%s\" must declare at least one service.", app->name);
+	}
+}
+
 /** First pass: declare every network, service and volume, rejecting duplicates. */
 static void _declareSymbols(SymbolTable * table, App * app) {
 	for (AppItem * item = app->items; item != NULL; item = item->next) {
@@ -286,6 +308,7 @@ CompilationStatus executeSemanticAnalysis(CompilerState * compilerState) {
 	_errorCount = 0;
 	SymbolTable * table = createSymbolTable();
 	compilerState->symbolTable = table;
+	_validateServiceDeclarations(program->app);
 	_declareSymbols(table, program->app);
 	_validateReferences(table, program->app);
 	if (0 < _errorCount) {

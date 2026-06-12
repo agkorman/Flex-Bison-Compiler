@@ -1,0 +1,7 @@
+// host paths with spaces must be quoted in the generated YAML
+app HostPathWithSpaces {
+    network main {
+        service backend using "node:20";
+        mount "./my data" on backend at "/app/my data";
+    }
+}

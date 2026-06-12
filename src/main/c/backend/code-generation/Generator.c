@@ -146,7 +146,15 @@ static void _generateService(FILE * file, App * app, SymbolTable * table,
 				_output(file, "        volumes:\n");
 				header = 1;
 			}
-			_output(file, "            - %s:%s\n", declaration->mount->source, declaration->mount->containerPath);
+			// Paths are quoted so YAML special characters cannot break the file.
+			if (declaration->mount->sourceType == HOST_PATH_SOURCE) {
+				_output(file, "            - type: bind\n");
+				_output(file, "              source: \"%s\"\n", declaration->mount->source);
+				_output(file, "              target: \"%s\"\n", declaration->mount->containerPath);
+			}
+			else {
+				_output(file, "            - \"%s:%s\"\n", declaration->mount->source, declaration->mount->containerPath);
+			}
 		}
 	}
 }
