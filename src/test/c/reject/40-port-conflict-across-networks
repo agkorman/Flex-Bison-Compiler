@@ -1,0 +1,11 @@
+// host ports are global: conflicts are rejected even across networks
+app MyApp {
+    network edge {
+        proxy web using "nginx:latest";
+        expose web on 443;
+    }
+    network core {
+        service backend using "node:20";
+        expose backend on 443;
+    }
+}

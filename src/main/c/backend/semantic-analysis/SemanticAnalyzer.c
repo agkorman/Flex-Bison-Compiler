@@ -155,6 +155,44 @@ static void _checkDuplicateConnect(Network * network, Declaration * current) {
 	}
 }
 
+/** Two services publishing the same host port would conflict at "docker compose up". */
+static void _checkPortConflict(App * app, Declaration * current) {
+	ExposeDeclaration * expose = current->expose;
+	for (AppItem * item = app->items; item != NULL; item = item->next) {
+		if (item->type != NETWORK_ITEM) {
+			continue;
+		}
+		for (Declaration * declaration = item->network->declarations; declaration != NULL; declaration = declaration->next) {
+			if (declaration == current) {
+				return;
+			}
+			if (declaration->type == EXPOSE_DECLARATION
+				&& declaration->expose->port == expose->port
+				&& strcmp(declaration->expose->serviceName, expose->serviceName) != 0) {
+				_reportError("port %d is already published by service \"%s\": it cannot be shared with \"%s\".",
+					expose->port, declaration->expose->serviceName, expose->serviceName);
+				return;
+			}
+		}
+	}
+}
+
+/** The same mount twice would duplicate "volumes:" entries. */
+static void _checkDuplicateMount(Network * network, Declaration * current) {
+	MountDeclaration * mount = current->mount;
+	for (Declaration * declaration = network->declarations; declaration != current; declaration = declaration->next) {
+		if (declaration->type == MOUNT_DECLARATION
+			&& declaration->mount->sourceType == mount->sourceType
+			&& strcmp(declaration->mount->source, mount->source) == 0
+			&& strcmp(declaration->mount->serviceName, mount->serviceName) == 0
+			&& strcmp(declaration->mount->containerPath, mount->containerPath) == 0) {
+			_reportError("duplicate mount of \"%s\" on service \"%s\" at \"%s\" in network \"%s\".",
+				mount->source, mount->serviceName, mount->containerPath, network->name);
+			return;
+		}
+	}
+}
+
 static void _validateConnect(SymbolTable * table, App * app, Network * network, ConnectDeclaration * connect) {
 	// Compose rejects a service that depends on itself.
 	if (strcmp(connect->from, connect->to) == 0) {
@@ -219,6 +257,7 @@ static void _validateReferences(SymbolTable * table, App * app) {
 				case EXPOSE_DECLARATION:
 					_validateExpose(table, network, declaration->expose);
 					_checkDuplicateExpose(network, declaration);
+					_checkPortConflict(app, declaration);
 					break;
 				case CONNECT_DECLARATION:
 					_validateConnect(table, app, network, declaration->connect);
@@ -226,6 +265,7 @@ static void _validateReferences(SymbolTable * table, App * app) {
 					break;
 				case MOUNT_DECLARATION:
 					_validateMount(table, network, declaration->mount);
+					_checkDuplicateMount(network, declaration);
 					break;
 				default:
 					break;

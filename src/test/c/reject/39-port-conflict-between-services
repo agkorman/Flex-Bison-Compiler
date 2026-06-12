@@ -1,0 +1,9 @@
+// two services cannot publish the same host port
+app MyApp {
+    network main {
+        proxy web using "nginx:latest";
+        service backend using "node:20";
+        expose web on 8080;
+        expose backend on 8080;
+    }
+}
