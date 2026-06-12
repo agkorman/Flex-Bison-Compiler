@@ -1,4 +1,6 @@
 #include "backend/code-generation/Generator.h"
+#include "backend/semantic-analysis/SemanticAnalyzer.h"
+#include "backend/semantic-analysis/SymbolTable.h"
 #include "frontend/Frontend.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
@@ -19,29 +21,38 @@ const int main(const int length, const char ** arguments) {
 		logDebugging(logger, "Argument %d: \"%s\"", k, arguments[k]);
 	}
 	CompilerState compilerState = {
-		.abstractSyntaxtTree = NULL
+		.abstractSyntaxtTree = NULL,
+		.symbolTable = NULL
 	};
 	ModuleDestructor moduleDestructors[] = {
 		initializeAbstractSyntaxTreeModule(),
 		initializeFlexActionsModule(lexicalAnalyzer),
 		initializeBisonActionsModule(&compilerState),
 		initializeFrontendModule(lexicalAnalyzer),
+		initializeSymbolTableModule(),
+		initializeSemanticAnalyzerModule(),
 		initializeGeneratorModule()
 	};
 	CompilationStatus compilationStatus = executeSyntacticAnalysis();
 	Program * program = compilerState.abstractSyntaxtTree;
 	if (compilationStatus == SUCCEEDED) {
-		// // ----------------------------------------------------------------------------------------
-		// // Beginning of the Backend... ------------------------------------------------------------
-		// executeGenerator(&compilerState);
-		// // ...end of the Backend. -----------------------------------------------------------------
-		// // ----------------------------------------------------------------------------------------
+		compilationStatus = executeSemanticAnalysis(&compilerState);
+		if (compilationStatus == SUCCEEDED) {
+			compilationStatus = executeGenerator(&compilerState);
+			if (compilationStatus != SUCCEEDED) {
+				logError(logger, "The code-generation phase could not write the output artifacts.");
+			}
+		}
+		else {
+			logError(logger, "The semantic-analysis phase rejects the input program.");
+		}
 	}
 	else {
 		logError(logger, "The syntactic-analysis phase rejects the input program.");
 		compilationStatus = FAILED;
 	}
 	logDebugging(logger, "Releasing AST resources...");
+	destroySymbolTable(compilerState.symbolTable);
 	destroyProgram(program);
 	for (int k = (sizeof(moduleDestructors)/sizeof(ModuleDestructor)) - 1; 0 <= k; --k) {
 		moduleDestructors[k]();

@@ -1,0 +1,11 @@
+// volume names are global (they become Compose volume keys)
+app MyApp {
+    network data {
+        database db using "postgres:16";
+        volume shared;
+    }
+    network apps {
+        service backend using "node:20";
+        volume shared;
+    }
+}

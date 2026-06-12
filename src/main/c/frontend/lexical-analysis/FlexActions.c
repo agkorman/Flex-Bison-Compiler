@@ -1,4 +1,7 @@
 #include "FlexActions.h"
+#include <errno.h>
+#include <limits.h>
+#include <stdlib.h>
 
 /* MODULE INTERNAL STATE */
 
@@ -67,16 +70,24 @@ static char * _copyStringContent(const Token * token) {
 
 /* PUBLIC FUNCTIONS */
 
-CompilationStatus ApiLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, API);
+CompilationStatus AppLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, APP);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return status;
 }
 
-CompilationStatus AppLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, APP);
+CompilationStatus ArrowLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, ARROW);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus AtLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, AT);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
@@ -93,14 +104,6 @@ CompilationStatus CacheLexemeAction() {
 
 CompilationStatus CloseBraceLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, CLOSE_BRACE);
-	_logTokenAction(__FUNCTION__, token);
-	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
-	destroyToken(token);
-	return status;
-}
-
-CompilationStatus ConnectsToLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, CONNECTS_TO);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
@@ -131,14 +134,6 @@ CompilationStatus ExposeLexemeAction() {
 	return status;
 }
 
-CompilationStatus FrontendLexemeAction() {
-	Token * token = createToken(_lexicalAnalyzer, FRONTEND);
-	_logTokenAction(__FUNCTION__, token);
-	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
-	destroyToken(token);
-	return status;
-}
-
 CompilationStatus IdentifierLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, ID);
 	token->semanticValue->string = _copyLexeme(token);
@@ -159,7 +154,29 @@ CompilationStatus IgnoredLexemeAction() {
 
 CompilationStatus IntegerLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, INTEGER);
-	token->semanticValue->integer = atoi(token->lexeme);
+	// Out-of-range literals become -1 so they don't wrap into the valid range.
+	errno = 0;
+	long value = strtol(token->lexeme, NULL, 10);
+	if (errno == ERANGE || INT_MAX < value) {
+		value = -1;
+	}
+	token->semanticValue->integer = (int) value;
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus MountLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, MOUNT);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus NetworkLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, NETWORK);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
@@ -182,8 +199,32 @@ CompilationStatus OpenBraceLexemeAction() {
 	return status;
 }
 
+CompilationStatus ProxyLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, PROXY);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
 CompilationStatus SemicolonLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, SEMICOLON);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus ServiceLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, SERVICE);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus StaticLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, STATIC);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
@@ -208,6 +249,14 @@ CompilationStatus UnknownLexemeAction() {
 
 CompilationStatus UsingLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, USING);
+	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return status;
+}
+
+CompilationStatus VolumeLexemeAction() {
+	Token * token = createToken(_lexicalAnalyzer, VOLUME);
 	_logTokenAction(__FUNCTION__, token);
 	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);

@@ -1,0 +1,4 @@
+// services must be declared inside a network block
+app MyApp {
+    service backend using "node:18";
+}

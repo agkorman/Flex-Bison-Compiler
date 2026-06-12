@@ -1,0 +1,5 @@
+app SingleCache {
+    network main {
+        cache store using "redis:7";
+    }
+}

@@ -1,0 +1,6 @@
+app BareRelativeHostPathMount {
+    network main {
+        service backend using "node:20";
+        mount "data" on backend at "/data";
+    }
+}

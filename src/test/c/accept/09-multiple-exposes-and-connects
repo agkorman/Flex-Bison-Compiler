@@ -1,11 +1,11 @@
-app MultiApp {
-    frontend web using "nginx:latest";
-    api server using "node:20";
-    database db using "postgres:16";
-    cache redis using "redis:7";
-    expose web on 80;
-    expose server on 3000;
-    web connects_to server;
-    server connects_to db;
-    server connects_to redis;
+app MultiExpose {
+    network main {
+        proxy web using "nginx:latest";
+        service backend using "node:20";
+        database db using "postgres:16";
+        expose web on 80;
+        expose backend on 3000;
+        web -> backend;
+        backend -> db;
+    }
 }

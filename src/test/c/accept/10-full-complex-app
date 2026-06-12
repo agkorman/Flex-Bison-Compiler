@@ -1,23 +1,23 @@
 // Full-featured StackForge application
 app Production {
-    // Public-facing services
-    frontend web using "nginx:1.25";
-    frontend admin using "nginx:1.25";
-    // API layer
-    api gateway using "node:20";
-    api auth using "node:20";
-    // Data layer
-    database primary using "postgres:16";
-    cache session using "redis:7";
-    // Expose public ports
-    expose web on 80;
-    expose admin on 8080;
-    expose gateway on 3000;
-    // Service connections
-    web connects_to gateway;
-    admin connects_to gateway;
-    gateway connects_to auth;
-    gateway connects_to primary;
-    gateway connects_to session;
-    auth connects_to primary;
+    network edge {
+        // Public-facing services
+        proxy web using "nginx:1.25";
+        static admin using "nginx:1.25";
+        expose web on 80;
+        web -> admin;
+    }
+    network core {
+        // Application layer
+        service gateway using "node:20";
+        service auth using "node:20";
+        // Data layer
+        database primary using "postgres:16";
+        cache session using "redis:7";
+        gateway -> auth;
+        gateway -> primary;
+        gateway -> session;
+        auth -> primary;
+    }
+    edge -> core;
 }

@@ -1,3 +1,0 @@
-app CacheApp {
-    cache session using "redis:7";
-}

@@ -1,0 +1,7 @@
+// out-of-range port literal must not wrap into the valid range
+app MyApp {
+    network main {
+        proxy web using "nginx:latest";
+        expose web on 4294967297;
+    }
+}

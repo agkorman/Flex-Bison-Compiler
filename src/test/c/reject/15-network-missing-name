@@ -1,0 +1,5 @@
+app MyApp {
+    network {
+        service backend using "node:18";
+    }
+}

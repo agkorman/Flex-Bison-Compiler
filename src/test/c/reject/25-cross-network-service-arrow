@@ -1,0 +1,10 @@
+// cross-network arrow without an app-level link
+app MyApp {
+    network edge {
+        proxy web using "nginx:latest";
+        web -> backend;
+    }
+    network core {
+        service backend using "node:20";
+    }
+}

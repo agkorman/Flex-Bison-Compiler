@@ -1,3 +1,5 @@
 app MyApp {
-    api backend;
+    network main {
+        service backend;
+    }
 }

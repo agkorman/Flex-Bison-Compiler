@@ -1,0 +1,6 @@
+app HostPathMount {
+    network main {
+        service backend using "node:20";
+        mount "./src" on backend at "/app/src";
+    }
+}

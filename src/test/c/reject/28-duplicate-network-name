@@ -1,0 +1,8 @@
+app MyApp {
+    network main {
+        service backend using "node:18";
+    }
+    network main {
+        database db using "postgres:16";
+    }
+}

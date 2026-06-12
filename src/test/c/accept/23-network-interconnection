@@ -1,0 +1,9 @@
+app NetworkLink {
+    network edge {
+        proxy web using "nginx:latest";
+    }
+    network core {
+        service backend using "node:20";
+    }
+    edge -> core;
+}

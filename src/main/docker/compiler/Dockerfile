@@ -6,6 +6,7 @@ RUN apt-get update --yes \
 	&& apt-get install --yes \
 		bison \
 		cmake \
+		docker-compose-v2 \
 		flex \
 		gcc \
 		make \

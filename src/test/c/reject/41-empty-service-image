@@ -1,0 +1,5 @@
+app EmptyServiceImage {
+    network main {
+        service backend using "";
+    }
+}

@@ -1,5 +1,0 @@
-app ConnectedApp {
-    frontend web using "nginx:latest";
-    api backend using "node:20";
-    web connects_to backend;
-}

@@ -1,0 +1,9 @@
+// service names are global (they become Compose service keys)
+app MyApp {
+    network edge {
+        service worker using "node:20";
+    }
+    network core {
+        service worker using "python:3.12";
+    }
+}

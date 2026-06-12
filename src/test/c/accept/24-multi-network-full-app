@@ -1,0 +1,23 @@
+// Microservices platform with multiple interconnected networks
+app Platform {
+    network public {
+        proxy lb using "nginx:1.25";
+        expose lb on 443;
+    }
+    network users {
+        service users_api using "node:20";
+        database users_db using "postgres:16";
+        users_api -> users_db;
+        volume users_data;
+        mount users_data on users_db at "/var/lib/postgresql/data";
+    }
+    network billing {
+        service billing_api using "python:3.12";
+        cache queue using "redis:7";
+        billing_api -> queue;
+        mount "./billing" on billing_api at "/app";
+    }
+    public -> users;
+    public -> billing;
+    users -> billing;
+}

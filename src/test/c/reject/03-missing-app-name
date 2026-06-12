@@ -1,3 +1,5 @@
 app {
-    api backend using "node:18";
+    network main {
+        service backend using "node:18";
+    }
 }

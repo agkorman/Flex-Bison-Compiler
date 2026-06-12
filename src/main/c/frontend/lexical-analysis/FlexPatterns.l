@@ -14,24 +14,29 @@
  * @see https://westes.github.io/flex/manual/Definitions-Section.html#Definitions-Section
  */
 
-extern CompilationStatus ApiLexemeAction();
 extern CompilationStatus AppLexemeAction();
+extern CompilationStatus ArrowLexemeAction();
+extern CompilationStatus AtLexemeAction();
 extern CompilationStatus CacheLexemeAction();
 extern CompilationStatus CloseBraceLexemeAction();
-extern CompilationStatus ConnectsToLexemeAction();
 extern CompilationStatus DatabaseLexemeAction();
 extern CompilationStatus EndLexemeAction();
 extern CompilationStatus ExposeLexemeAction();
-extern CompilationStatus FrontendLexemeAction();
 extern CompilationStatus IdentifierLexemeAction();
 extern CompilationStatus IgnoredLexemeAction();
 extern CompilationStatus IntegerLexemeAction();
+extern CompilationStatus MountLexemeAction();
+extern CompilationStatus NetworkLexemeAction();
 extern CompilationStatus OnLexemeAction();
 extern CompilationStatus OpenBraceLexemeAction();
+extern CompilationStatus ProxyLexemeAction();
 extern CompilationStatus SemicolonLexemeAction();
+extern CompilationStatus ServiceLexemeAction();
+extern CompilationStatus StaticLexemeAction();
 extern CompilationStatus StringLexemeAction();
 extern CompilationStatus UnknownLexemeAction();
 extern CompilationStatus UsingLexemeAction();
+extern CompilationStatus VolumeLexemeAction();
 
 %}
 
@@ -58,15 +63,20 @@ lineComment			"//"[^\n]*
 %}
 
 "app"								{ return AppLexemeAction(); }
-"frontend"							{ return FrontendLexemeAction(); }
-"api"								{ return ApiLexemeAction(); }
+"network"							{ return NetworkLexemeAction(); }
+"proxy"								{ return ProxyLexemeAction(); }
+"service"							{ return ServiceLexemeAction(); }
+"static"							{ return StaticLexemeAction(); }
 "database"							{ return DatabaseLexemeAction(); }
 "cache"								{ return CacheLexemeAction(); }
 "using"								{ return UsingLexemeAction(); }
 "expose"							{ return ExposeLexemeAction(); }
 "on"								{ return OnLexemeAction(); }
-"connects_to"						{ return ConnectsToLexemeAction(); }
+"volume"							{ return VolumeLexemeAction(); }
+"mount"								{ return MountLexemeAction(); }
+"at"								{ return AtLexemeAction(); }
 
+"->"								{ return ArrowLexemeAction(); }
 "{"									{ return OpenBraceLexemeAction(); }
 "}"									{ return CloseBraceLexemeAction(); }
 ";"									{ return SemicolonLexemeAction(); }

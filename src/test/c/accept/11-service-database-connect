@@ -1,0 +1,8 @@
+app DatabaseConnect {
+    network main {
+        backend -> db;
+        service backend using "node:18";
+        database db using "postgres:16";
+        expose backend on 3000;
+    }
+}

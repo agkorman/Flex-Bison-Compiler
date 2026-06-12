@@ -46,6 +46,24 @@ void destroyConnectDeclaration(ConnectDeclaration * connect) {
 	}
 }
 
+void destroyVolumeDeclaration(VolumeDeclaration * volume) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (volume != NULL) {
+		free(volume->name);
+		free(volume);
+	}
+}
+
+void destroyMountDeclaration(MountDeclaration * mount) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (mount != NULL) {
+		free(mount->source);
+		free(mount->serviceName);
+		free(mount->containerPath);
+		free(mount);
+	}
+}
+
 void destroyDeclaration(Declaration * declaration) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (declaration != NULL) {
@@ -60,9 +78,41 @@ void destroyDeclaration(Declaration * declaration) {
 			case CONNECT_DECLARATION:
 				destroyConnectDeclaration(declaration->connect);
 				break;
+			case VOLUME_DECLARATION:
+				destroyVolumeDeclaration(declaration->volume);
+				break;
+			case MOUNT_DECLARATION:
+				destroyMountDeclaration(declaration->mount);
+				break;
 		}
 		free(declaration);
 		destroyDeclaration(next);
+	}
+}
+
+void destroyNetwork(Network * network) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (network != NULL) {
+		free(network->name);
+		destroyDeclaration(network->declarations);
+		free(network);
+	}
+}
+
+void destroyAppItem(AppItem * item) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (item != NULL) {
+		AppItem * next = item->next;
+		switch (item->type) {
+			case NETWORK_ITEM:
+				destroyNetwork(item->network);
+				break;
+			case NETWORK_CONNECT_ITEM:
+				destroyConnectDeclaration(item->connect);
+				break;
+		}
+		free(item);
+		destroyAppItem(next);
 	}
 }
 
@@ -70,7 +120,7 @@ void destroyApp(App * app) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (app != NULL) {
 		free(app->name);
-		destroyDeclaration(app->declarations);
+		destroyAppItem(app->items);
 		free(app);
 	}
 }

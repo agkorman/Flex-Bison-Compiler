@@ -1,6 +1,9 @@
 app AllRoles {
-    frontend web using "nginx:latest";
-    api server using "node:20";
-    database db using "postgres:16";
-    cache redis using "redis:7";
+    network main {
+        proxy gateway using "nginx:1.25";
+        service backend using "node:20";
+        static assets using "nginx:1.25";
+        database db using "postgres:16";
+        cache store using "redis:7";
+    }
 }

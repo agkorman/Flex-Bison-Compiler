@@ -29,6 +29,8 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 
 	RoleType role;
 	App * app;
+	AppItem * appItem;
+	Network * network;
 	Declaration * declaration;
 	Program * program;
 }
@@ -43,18 +45,25 @@ void yyerror(const YYLTYPE * location, const char * message) {}
  */
 %destructor { free($$); } <string>
 %destructor { destroyDeclaration($$); } <declaration>
+%destructor { destroyNetwork($$); } <network>
+%destructor { destroyAppItem($$); } <appItem>
 %destructor { destroyApp($$); } <app>
 
 /** Terminals. */
 %token <token> APP
-%token <token> FRONTEND
-%token <token> API
+%token <token> NETWORK
+%token <token> PROXY
+%token <token> SERVICE
+%token <token> STATIC
 %token <token> DATABASE
 %token <token> CACHE
 %token <token> USING
 %token <token> EXPOSE
 %token <token> ON
-%token <token> CONNECTS_TO
+%token <token> VOLUME
+%token <token> MOUNT
+%token <token> AT
+%token <token> ARROW
 
 %token <string> ID
 %token <string> STRING
@@ -72,6 +81,9 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 /** Non-terminals. */
 %type <role> role
 %type <app> app
+%type <appItem> appItem
+%type <appItem> appItems
+%type <network> network
 %type <declaration> declaration
 %type <declaration> declarations
 %type <program> program
@@ -83,7 +95,18 @@ void yyerror(const YYLTYPE * location, const char * message) {}
 program: app												{ $$ = AppProgramSemanticAction($1); }
 	;
 
-app: APP ID OPEN_BRACE declarations CLOSE_BRACE			{ $$ = AppSemanticAction($2, $4); }
+app: APP ID OPEN_BRACE appItems CLOSE_BRACE				{ $$ = AppSemanticAction($2, $4); }
+	;
+
+appItems: appItems appItem								{ $$ = AppendAppItemSemanticAction($1, $2); }
+	| appItem											{ $$ = SingleAppItemSemanticAction($1); }
+	;
+
+appItem: network										{ $$ = NetworkAppItemSemanticAction($1); }
+	| ID ARROW ID SEMICOLON								{ $$ = NetworkConnectAppItemSemanticAction($1, $3); }
+	;
+
+network: NETWORK ID OPEN_BRACE declarations CLOSE_BRACE	{ $$ = NetworkSemanticAction($2, $4); }
 	;
 
 declarations: declarations declaration					{ $$ = AppendDeclarationSemanticAction($1, $2); }
@@ -92,11 +115,15 @@ declarations: declarations declaration					{ $$ = AppendDeclarationSemanticActio
 
 declaration: role ID USING STRING SEMICOLON				{ $$ = ServiceDeclarationSemanticAction($1, $2, $4); }
 	| EXPOSE ID ON INTEGER SEMICOLON					{ $$ = ExposeDeclarationSemanticAction($2, $4); }
-	| ID CONNECTS_TO ID SEMICOLON						{ $$ = ConnectDeclarationSemanticAction($1, $3); }
+	| ID ARROW ID SEMICOLON								{ $$ = ConnectDeclarationSemanticAction($1, $3); }
+	| VOLUME ID SEMICOLON								{ $$ = VolumeDeclarationSemanticAction($2); }
+	| MOUNT ID ON ID AT STRING SEMICOLON				{ $$ = MountDeclarationSemanticAction(VOLUME_SOURCE, $2, $4, $6); }
+	| MOUNT STRING ON ID AT STRING SEMICOLON			{ $$ = MountDeclarationSemanticAction(HOST_PATH_SOURCE, $2, $4, $6); }
 	;
 
-role: FRONTEND											{ $$ = FRONTEND_ROLE; }
-	| API												{ $$ = API_ROLE; }
+role: PROXY												{ $$ = PROXY_ROLE; }
+	| SERVICE											{ $$ = SERVICE_ROLE; }
+	| STATIC											{ $$ = STATIC_ROLE; }
 	| DATABASE											{ $$ = DATABASE_ROLE; }
 	| CACHE												{ $$ = CACHE_ROLE; }
 	;

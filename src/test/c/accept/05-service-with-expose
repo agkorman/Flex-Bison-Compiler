@@ -1,4 +1,6 @@
-app ExposedApp {
-    api server using "node:20";
-    expose server on 3000;
+app ServiceWithExpose {
+    network main {
+        proxy web using "nginx:latest";
+        expose web on 8080;
+    }
 }

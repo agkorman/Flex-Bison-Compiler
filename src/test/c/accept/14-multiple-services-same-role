@@ -1,6 +1,8 @@
-app MultipleApis {
-    api users using "node:20";
-    api billing using "node:20";
-    expose users on 3000;
-    expose billing on 3001;
+app SameRole {
+    network main {
+        service users using "node:20";
+        service billing using "python:3.12";
+        expose users on 3000;
+        expose billing on 3001;
+    }
 }

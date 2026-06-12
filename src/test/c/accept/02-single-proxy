@@ -1,0 +1,5 @@
+app SingleProxy {
+    network main {
+        proxy gateway using "nginx:latest";
+    }
+}

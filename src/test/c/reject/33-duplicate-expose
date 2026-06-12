@@ -1,0 +1,8 @@
+// duplicate expose of the same service on the same port
+app MyApp {
+    network main {
+        proxy web using "nginx:latest";
+        expose web on 8080;
+        expose web on 8080;
+    }
+}

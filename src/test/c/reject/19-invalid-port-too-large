@@ -1,0 +1,6 @@
+app MyApp {
+    network main {
+        proxy web using "nginx:latest";
+        expose web on 65536;
+    }
+}

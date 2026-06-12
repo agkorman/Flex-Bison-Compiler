@@ -1,6 +1,0 @@
-app CachedApi {
-    api backend using "node:20";
-    cache redis using "redis:7";
-    expose backend on 3000;
-    backend connects_to redis;
-}

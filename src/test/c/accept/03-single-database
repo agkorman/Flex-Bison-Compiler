@@ -1,0 +1,5 @@
+app SingleDatabase {
+    network main {
+        database db using "postgres:16";
+    }
+}

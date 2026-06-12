@@ -1,0 +1,5 @@
+app NoServices {
+    network main {
+        volume pgdata;
+    }
+}
