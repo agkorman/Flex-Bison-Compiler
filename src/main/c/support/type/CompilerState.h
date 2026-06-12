@@ -11,11 +11,11 @@ typedef struct {
 	 */
 	void * abstractSyntaxtTree;
 
-	// TODO: Add a symbol table.
-	// TODO: Add an stack to handle nested scopes.
-	// TODO: Add more configuration.
-	// TODO: Add whatever you need.
-	// TODO: ...
+	/**
+	 * The symbol table built during the semantic-analysis phase (an opaque
+	 * SymbolTable pointer; scopes are flat: app-level and network-level).
+	 */
+	void * symbolTable;
 } CompilerState;
 
 #endif
