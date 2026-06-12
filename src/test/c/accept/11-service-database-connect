@@ -1,7 +1,8 @@
 app MyApp {
     network main {
+        backend -> db;
         service backend using "node:18";
         database db using "postgres:16";
-        backend -> db;
+        expose backend on 3000;
     }
 }
