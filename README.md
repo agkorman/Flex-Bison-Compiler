@@ -58,21 +58,19 @@ where `<program>` is the path to the file that represents its entry-point.
 
 ### Test
 
-Executes the Stage II frontend unit tests under `src/test/c/accept` and
-`src/test/c/reject`:
+Executes the unit tests under `src/test/c/accept` and `src/test/c/reject`:
 
 ```bash
 src/main/bash/test.sh
 ```
 
-The fixtures under `src/test/c/reject-stage3` document semantic rejection cases
-that require the Stage III backend/semantic-analysis phase, such as duplicate
-service or network names, missing service references, invalid exposed ports,
-exposing internal services (e.g. a `database`), cross-network connections
-without an app-level network link, or mounts that reference undeclared volumes
-or services. They are intentionally not executed by the Stage II test script
-because the current deliverable only validates lexical and syntactic analysis
-and AST construction.
+The fixtures under `src/test/c/accept` must compile, while the ones under
+`src/test/c/reject` must fail in any phase: lexical or syntactic analysis
+(e.g. malformed programs), or the Stage III semantic analysis, which rejects
+duplicate service, network or volume names, missing service references,
+invalid exposed ports, exposing internal services (e.g. a `database`),
+cross-network connections without an app-level network link, or mounts that
+reference undeclared volumes or services.
 
 ### Language
 

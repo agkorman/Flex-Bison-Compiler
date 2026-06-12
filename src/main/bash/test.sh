@@ -40,20 +40,5 @@ for test in $(ls src/test/c/reject/); do
 done
 echo ""
 
-echo "Compiler should reject (semantic analysis)..."
-echo ""
-
-for test in $(ls src/test/c/reject-stage3/); do
-	cat "src/test/c/reject-stage3/$test" | ".build/Flex-Bison-Compiler" >/dev/null 2>&1
-	RESULT="$?"
-	if [ "$RESULT" != "0" ]; then
-		echo -e "    $test, ${GREEN}and it does${OFF} (status $RESULT)"
-	else
-		STATUS=1
-		echo -e "    $test, ${RED}but it accepts${OFF} (status $RESULT)"
-	fi
-done
-echo ""
-
 echo "All done."
 exit $STATUS
